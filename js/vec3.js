@@ -15,7 +15,7 @@ class Vec3{
      * Normalize : void
      *
      * + -
-     * * / -- scalar
+     * * / (scalar)
      *
      * Dot : float
      *
@@ -78,7 +78,15 @@ class Vec3{
     }
 
     isUnit(){
-        return (1 - this.lengthSquared == 0)
+        // Checks against small num for lack of precision in normalisation
+        return (1 - this.lengthSquared <= this.smallNum);
+    }
+
+    isZero(){
+        // If basically 0, set x,y,z to 0
+        let ret = this.x <= this.smallNum && this.y <= this.smallNum && this.z <= this.smallNum;
+        if(ret) this.zero();
+        return ret;
     }
 
     clean(){
@@ -99,9 +107,9 @@ class Vec3{
         if(lSq < this.smallNum) this.zero();
         else {
             let l = Math.sqrt(lSq);
-            this.x /= m;
-            this.y /= m;
-            this.z /= m;
+            this.x /= l;
+            this.y /= l;
+            this.z /= l;
         }
     }
 
