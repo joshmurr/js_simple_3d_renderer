@@ -21,34 +21,16 @@ class Vec3{
      *
      */
 
-    let smallNum = 0.0000000001;
+    smallNum = 0.0000000001;
+
+    x = 0;
+    y = 0;
+    z = 0;
 
     constructor(_x, _y, _z){
         this.x = _x;
         this.y = _y;
         this.z = _z;
-    }
-
-    // SETTERS
-    set x(_x){
-        this.x = _x;
-    }
-    set y(_y){
-        this.y = _y;
-    }
-    set z(_z){
-        this.z = _z;
-    }
-
-    // GETTERS
-    get x(){
-        return this.x;
-    }
-    get y(){
-        return this.y;
-    }
-    get z(){
-        return this.z;
     }
 
     get lengthSquared(){
@@ -101,9 +83,9 @@ class Vec3{
 
     clean(){
         // Sets values to 0 if nearly 0
-        this.x = this.x < smallNum ? 0 : this.x;
-        this.y = this.y < smallNum ? 0 : this.y;
-        this.z = this.z < smallNum ? 0 : this.z;
+        this.x = this.x < this.smallNum ? 0 : this.x;
+        this.y = this.y < this.smallNum ? 0 : this.y;
+        this.z = this.z < this.smallNum ? 0 : this.z;
     }
 
     zero(){
@@ -114,7 +96,7 @@ class Vec3{
 
     normalize(){
         let lSq = this.lengthSquared;
-        if(lSq < smallNum) this.zero();
+        if(lSq < this.smallNum) this.zero();
         else {
             let l = Math.sqrt(lSq);
             this.x /= m;
