@@ -21,7 +21,7 @@ var isZero = function(x){
 }
 
 var areEqual = function(a, b, epsilon=smallNum){
-    return (Math.abs(a-b) <= (epsilon*(a+b+1)));
+    return (Math.abs(a-b) <= (epsilon*(Math.abs(a)+Math.abs(b)+1)));
 }
 
 var checkLength = function(_M, l){

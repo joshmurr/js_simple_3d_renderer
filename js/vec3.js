@@ -89,6 +89,12 @@ export class Vec3{
         return ret;
     }
 
+    isEqual(v){
+        return Utils.areEqual(this.x, v.x) && 
+               Utils.areEqual(this.y, v.y) && 
+               Utils.areEqual(this.z, v.z);
+    }
+
     clean(){
         // Sets values to 0 if nearly 0
         this.x = this.x < Utils.smallNum ? 0 : this.x;
@@ -112,6 +118,17 @@ export class Vec3{
             this.z /= l;
         }
     }
+
+    getNormalize(){
+        let lSq = this.lengthSquared;
+        if(lSq < Utils.smallNum) {
+            return new Vec3(0, 0, 0);
+        } else {
+            let l = Math.sqrt(lSq);
+            return new Vec3(this.x/l, this.y/l, this.z/l);
+        }
+    }
+
 
     dot(v){
         return this.x*v.x + this.y*v.y + this.z*v.z;
