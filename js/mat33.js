@@ -45,11 +45,11 @@ class Mat33{
         return this.M;
     }
 
-    setMat(_M){
+    setMat(_arr){
         try{
-            checkLength(_M, 9); // Throws error if wrong length
+            checkLength(_arr, 9); // Throws error if wrong length
             for(let i=0; i<9; i++){
-                this.M[i] = _M[i];
+                this.M[i] = _arr[i];
             }
         } catch(e){
             console.warn(e.message);
@@ -143,6 +143,102 @@ class Mat33{
             if(!isZero(this.M[i])) return false;
         }
         return true;
+    }
+
+    add(_M){
+        for(let i=0; i<9; i++){
+            this.M[i] += _M.M[i];
+        }
+    }
+
+    getAdd(_M){
+        let ret = new Mat33();
+        for(let i=0; i<9; i++){
+            ret.M[i] = this.M[i] + _M.M[i];
+        }
+        return ret;
+    }
+
+    subtract(_M){
+        for(let i=0; i<9; i++){
+            this.M[i] -= _M.M[i];
+        }
+    }
+
+    getSubtract(_M){
+        let ret = new Mat33();
+        for(let i=0; i<9; i++){
+            ret.M[i] = this.M[i] - _M.M[i];
+        }
+        return ret;
+    }
+        
+
+    multiplyMat(_M){
+        let res = new Mat33();
+        res.M[0] = this.M[0]*_M.M[0] + this.M[3]*_M.M[1] + this.M[6]*_M.M[2];
+        res.M[1] = this.M[1]*_M.M[0] + this.M[4]*_M.M[1] + this.M[7]*_M.M[2];
+        res.M[2] = this.M[2]*_M.M[0] + this.M[5]*_M.M[1] + this.M[8]*_M.M[2];
+        res.M[3] = this.M[0]*_M.M[3] + this.M[3]*_M.M[4] + this.M[6]*_M.M[5];
+        res.M[4] = this.M[1]*_M.M[3] + this.M[4]*_M.M[4] + this.M[7]*_M.M[5];
+        res.M[5] = this.M[2]*_M.M[3] + this.M[5]*_M.M[4] + this.M[8]*_M.M[5];
+        res.M[6] = this.M[0]*_M.M[6] + this.M[3]*_M.M[7] + this.M[6]*_M.M[8];
+        res.M[7] = this.M[1]*_M.M[6] + this.M[4]*_M.M[7] + this.M[7]*_M.M[8];
+        res.M[8] = this.M[2]*_M.M[6] + this.M[5]*_M.M[7] + this.M[8]*_M.M[8];
+
+        for(let i=0; i<9; i++){
+            this.M[i] = res[i];
+        }
+    }
+
+
+    getMultiplyMat(_M){
+        let ret = new Mat33();
+        ret.M[0] = this.M[0]*_M.M[0] + this.M[3]*_M.M[1] + this.M[6]*_M.M[2];
+        ret.M[1] = this.M[1]*_M.M[0] + this.M[4]*_M.M[1] + this.M[7]*_M.M[2];
+        ret.M[2] = this.M[2]*_M.M[0] + this.M[5]*_M.M[1] + this.M[8]*_M.M[2];
+        ret.M[3] = this.M[0]*_M.M[3] + this.M[3]*_M.M[4] + this.M[6]*_M.M[5];
+        ret.M[4] = this.M[1]*_M.M[3] + this.M[4]*_M.M[4] + this.M[7]*_M.M[5];
+        ret.M[5] = this.M[2]*_M.M[3] + this.M[5]*_M.M[4] + this.M[8]*_M.M[5];
+        ret.M[6] = this.M[0]*_M.M[6] + this.M[3]*_M.M[7] + this.M[6]*_M.M[8];
+        ret.M[7] = this.M[1]*_M.M[6] + this.M[4]*_M.M[7] + this.M[7]*_M.M[8];
+        ret.M[8] = this.M[2]*_M.M[6] + this.M[5]*_M.M[7] + this.M[8]*_M.M[8];
+
+        return ret;
+    }
+
+    getMultiplyVec(v){
+        let ret = new Vec3();
+        ret.x = this.M[0]*v.x + this.M[3]*v.y + this.M[6]*v.z;
+        ret.y = this.M[1]*v.x + this.M[4]*v.y + this.M[7]*v.z;
+        ret.z = this.M[2]*v.x + this.M[5]*v.y + this.M[8]*v.z;
+        return ret;
+    }
+
+    scale(s){
+        this.M[0] *= s;
+        this.M[1] *= s;
+        this.M[2] *= s;
+        this.M[3] *= s;
+        this.M[4] *= s;
+        this.M[5] *= s;
+        this.M[6] *= s;
+        this.M[7] *= s;
+        this.M[8] *= s;
+    }
+
+    getScale(s){
+        let ret = new Mat33();
+        ret.M[0] = this.M[0] * s;
+        ret.M[1] = this.M[1] * s;
+        ret.M[2] = this.M[2] * s;
+        ret.M[3] = this.M[3] * s;
+        ret.M[4] = this.M[4] * s;
+        ret.M[5] = this.M[5] * s;
+        ret.M[6] = this.M[6] * s;
+        ret.M[7] = this.M[7] * s;
+        ret.M[8] = this.M[8] * s;
+        return ret;
     }
 
 

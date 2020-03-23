@@ -13,6 +13,10 @@ var THROW_ERROR = function(){
 var smallNum = 0.000000001;
 var emptyMat33 = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 var emptyMat44 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var p = new Mat33();
+p.M[0] = 1; p.M[4] = 3; p.M[6] = 2; p.M[8] = 5;
+var q = new Mat33();
+q.M[1] = 1; q.M[2] = 2; q.M[3] = 3; q.M[5] = 4; q.M[6] = 2;
 // ------------------------------------------
 
 // CHECKER FUNCTIONS ------------------------
