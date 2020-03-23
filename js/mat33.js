@@ -56,6 +56,26 @@ class Mat33{
         }
     }
 
+    setIJ(_i, _j, val){
+        try{
+            checkSize(_i, 3);
+            checkSize(_j, 3);
+            this.M[_i+3*_j] = val;
+        } catch(e){
+            console.warn(e.message);
+        }
+    }
+
+    getIJ(_i, _j){
+        try{
+            checkSize(_i, 3);
+            checkSize(_j, 3);
+            return this.M[_i+3*_j];
+        } catch(e){
+            console.warn(e.message);
+        }
+    }
+
     setRows(row0, row1, row2){
         this.M[0] = row0.x;
         this.M[3] = row0.y;
@@ -128,14 +148,14 @@ class Mat33{
 
     isIdentity(){
         return areEqual(this.M[0], 1) &&
-               areEqual(this.M[4], 1) &&
-               areEqual(this.M[8], 1) &&
-               isZero(this.M[1]) &&
-               isZero(this.M[2]) &&
-               isZero(this.M[3]) &&
-               isZero(this.M[5]) &&
-               isZero(this.M[6]) &&
-               isZero(this.M[7]);
+            areEqual(this.M[4], 1) &&
+            areEqual(this.M[8], 1) &&
+            isZero(this.M[1]) &&
+            isZero(this.M[2]) &&
+            isZero(this.M[3]) &&
+            isZero(this.M[5]) &&
+            isZero(this.M[6]) &&
+            isZero(this.M[7]);
     }
 
     isZero(){
@@ -172,7 +192,7 @@ class Mat33{
         }
         return ret;
     }
-        
+
 
     multiplyMat(_M){
         let res = new Mat33();
@@ -241,5 +261,92 @@ class Mat33{
         return ret;
     }
 
+    transpose(){
+        let tmp = this.M[1];
+        this.M[1] = this.M[3];
+        this.M[3] = tmp;
+
+        tmp = this.M[2];
+        this.M[2] = this.M[6];
+        this.M[6] = tmp;
+
+        tmp = this.M[5];
+        this.M[5] = this.M[7];
+        this.M[7] = tmp;
+    }
+
+    getTranspose(){
+        let ret = new Mat33();
+        ret.M[0] = this.M[0];
+        ret.M[1] = this.M[3];
+        ret.M[2] = this.M[6];
+        ret.M[3] = this.M[1];
+        ret.M[4] = this.M[4];
+        ret.M[5] = this.M[7];
+        ret.M[6] = this.M[2];
+        ret.M[7] = this.M[5];
+        ret.M[8] = this.M[8];
+        return ret;
+    }
+
+    getDeterminant(){
+        return this.M[0]*(this.M[4]*this.M[8] - this.M[5]*this.M[7]) +
+            this.M[3]*(this.M[2]*this.M[7] - this.M[1]*this.M[8]) +
+            this.M[6]*(this.M[1]*this.M[5] - this.M[2]*this.M[4]);
+    }
+
+    getTrace(){
+        // Sum of main diagonal
+        return this.M[0] + this.M[4] + this.M[8];
+    }
+
+    getAdjoint(){
+        let ret = new Mat33();
+        ret.M[0] = this.M[4]*this.M[8] - this.M[5]*this.M[7];
+        ret.M[1] = this.M[2]*this.M[7] - this.M[1]*this.M[8];
+        ret.M[2] = this.M[1]*this.M[5] - this.M[2]*this.M[4];
+
+        ret.M[3] = this.M[5]*this.M[6] - this.M[3]*this.M[8];
+        ret.M[4] = this.M[0]*this.M[8] - this.M[2]*this.M[6];
+        ret.M[5] = this.M[2]*this.M[3] - this.M[0]*this.M[5];
+
+        ret.M[6] = this.M[3]*this.M[7] - this.M[4]*this.M[6];
+        ret.M[7] = this.M[1]*this.M[6] - this.M[0]*this.M[7];
+        ret.M[8] = this.M[0]*this.M[4] - this.M[1]*this.M[3];
+        return ret;
+    }
+
+    getInverse(_M){
+        let ret = new Mat33();
+
+        let cofactor0 = _M.M[4]*_M.M[8] - _M.M[5]*_M.M[7];
+        let cofactor3 = _M.M[2]*_M.M[7] - _M.M[1]*_M.M[8];
+        let cofactor6 = _M.M[1]*_M.M[5] - _M.M[2]*_M.M[4];
+        let det = _M.M[0]*cofactor0 + _M.M[3]*cofactor3 + _M.M[6]*cofactor6;
+
+        if(isZero(det)){
+            throw new userException("Singular Matrix: Non-Invertible!");
+        }
+
+        let invDet = 1/det;
+        ret.M[0] = invDet*cofactor0;
+        ret.M[1] = invDet*cofactor3;
+        ret.M[2] = invDet*cofactor6;
+
+        ret.M[3] = invDet*(_M.M[5]*_M.M[6] - _M.M[3]*_M.M[8]);
+        ret.M[4] = invDet*(_M.M[0]*_M.M[8] - _M.M[2]*_M.M[6]);
+        ret.M[5] = invDet*(_M.M[2]*_M.M[3] - _M.M[0]*_M.M[5]);
+
+        ret.M[6] = invDet*(_M.M[3]*_M.M[7] - _M.M[4]*_M.M[6]);
+        ret.M[7] = invDet*(_M.M[1]*_M.M[6] - _M.M[0]*_M.M[7]);
+        ret.M[8] = invDet*(_M.M[0]*_M.M[4] - _M.M[1]*_M.M[3]);
+
+        return ret;
+    }
+
+    inverse(){
+        let inv = this.getInverse(this); 
+        this.M = inv.M;
+    }
 
 }

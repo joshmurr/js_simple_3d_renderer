@@ -29,11 +29,13 @@ var areEqual = function(a, b, epsilon=smallNum){
 }
 
 var checkLength = function(_M, l){
-    if(_M.length !== l) throw new userException("Trying to copy Matrix of wrong length!");
+    if(_M.length !== l) 
+        throw new userException("Trying to copy Matrix of wrong length!");
 }
 
 var checkSize = function(_i, s){
-    if(_i >= s) throw new userException(`Matrix is of ${s}x${s} shape! Range is [0, ${s-1}].`);
+    if(_i >= s) 
+        throw new userException(`Matrix is of ${s}x${s} shape! Range is [0, ${s-1}].`);
 }
 // ------------------------------------------
 
