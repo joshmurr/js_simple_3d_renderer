@@ -1,4 +1,6 @@
-class Mat33{
+import * as Utils from './utils.js';
+
+export class Mat33{
 
     /*
      * mV[9]
@@ -47,7 +49,7 @@ class Mat33{
 
     setMat(_arr){
         try{
-            checkLength(_arr, 9); // Throws error if wrong length
+            Utils.checkLength(_arr, 9); // Throws error if wrong length
             for(let i=0; i<9; i++){
                 this.M[i] = _arr[i];
             }
@@ -58,8 +60,8 @@ class Mat33{
 
     setIJ(_i, _j, val){
         try{
-            checkSize(_i, 3);
-            checkSize(_j, 3);
+            Utils.checkSize(_i, 3);
+            Utils.checkSize(_j, 3);
             this.M[_i+3*_j] = val;
         } catch(e){
             console.warn(e.message);
@@ -68,8 +70,8 @@ class Mat33{
 
     getIJ(_i, _j){
         try{
-            checkSize(_i, 3);
-            checkSize(_j, 3);
+            Utils.checkSize(_i, 3);
+            Utils.checkSize(_j, 3);
             return this.M[_i+3*_j];
         } catch(e){
             console.warn(e.message);
@@ -92,7 +94,7 @@ class Mat33{
 
     getRow(i){
         try{
-            checkSize(i, 3);
+            Utils.checkSize(i, 3);
             return new Vec3(this.M[i], this.M[i+3], this.M[i+6]);
         } catch(e){
             console.warn(e.message);
@@ -115,7 +117,7 @@ class Mat33{
 
     getCol(i){
         try{
-            checkSize(i, 3);
+            Utils.checkSize(i, 3);
             return new Vec3(this.M[3*i], this.M[3*i+1], this.M[3*i+2]);
         } catch(e){
             console.warn(e.message);
@@ -124,7 +126,7 @@ class Mat33{
 
     clean(){
         for(let i=0; i<9; i++){
-            if(isZero(this.M[i])) this.M[i] = 0;
+            if(Utils.isZero(this.M[i])) this.M[i] = 0;
         }
     }
 
@@ -147,20 +149,20 @@ class Mat33{
     }
 
     isIdentity(){
-        return areEqual(this.M[0], 1) &&
-            areEqual(this.M[4], 1) &&
-            areEqual(this.M[8], 1) &&
-            isZero(this.M[1]) &&
-            isZero(this.M[2]) &&
-            isZero(this.M[3]) &&
-            isZero(this.M[5]) &&
-            isZero(this.M[6]) &&
-            isZero(this.M[7]);
+        return Utils.areEqual(this.M[0], 1) &&
+            Utils.areEqual(this.M[4], 1) &&
+            Utils.areEqual(this.M[8], 1) &&
+            Utils.isZero(this.M[1]) &&
+            Utils.isZero(this.M[2]) &&
+            Utils.isZero(this.M[3]) &&
+            Utils.isZero(this.M[5]) &&
+            Utils.isZero(this.M[6]) &&
+            Utils.isZero(this.M[7]);
     }
 
     isZero(){
         for(let i=0; i<9; i++){
-            if(!isZero(this.M[i])) return false;
+            if(!Utils.isZero(this.M[i])) return false;
         }
         return true;
     }
@@ -324,8 +326,8 @@ class Mat33{
         let cofactor6 = _M.M[1]*_M.M[5] - _M.M[2]*_M.M[4];
         let det = _M.M[0]*cofactor0 + _M.M[3]*cofactor3 + _M.M[6]*cofactor6;
 
-        if(isZero(det)){
-            throw new userException("Singular Matrix: Non-Invertible!");
+        if(Utils.isZero(det)){
+            throw new Utils.userException("Singular Matrix: Non-Invertible!");
         }
 
         let invDet = 1/det;
