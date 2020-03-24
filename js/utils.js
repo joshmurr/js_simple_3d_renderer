@@ -11,8 +11,6 @@ var THROW_ERROR = function(){
 
 // GLOBAL VARIABLES -------------------------
 var smallNum = 0.000000001;
-var emptyMat33 = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-var emptyMat44 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 // ------------------------------------------
 
 // CHECKER FUNCTIONS ------------------------
@@ -33,6 +31,14 @@ var checkSize = function(_i, s){
     if(_i >= s) 
         throw new userException(`Matrix is of ${s}x${s} shape! Range is [0, ${s-1}].`);
 }
+
+var round = function(val, epsilon=smallNum){
+    let integerPart = Math.floor(val);
+    let fract = val - integerPart;
+    if(1-val <= epsilon) return Math.round(val);
+    else return val;
+}
+
 // ------------------------------------------
 
-export { userException, smallNum, isZero, areEqual, checkLength, checkSize };
+export { userException, smallNum, isZero, areEqual, checkLength, checkSize, round };

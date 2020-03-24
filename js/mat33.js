@@ -41,7 +41,21 @@ export default class Mat33{
     M = []; // Matrix
 
     constructor(){
+        this.size = 9;
+        this.numRows = 3;
+        this.numCols = 3;
+        this.type = "Mat33";
         this.zero();
+    }
+
+    printProps(){
+        console.group(String(this.type + ":"));
+        for(let i=0; i<this.numRows; i++){
+            let row = this.getRow(i);
+            row = row.toArray();
+            console.log(row.toString());
+        }
+        console.groupEnd();
     }
 
     get M(){
@@ -50,8 +64,8 @@ export default class Mat33{
 
     setMat(_arr){
         try{
-            Utils.checkLength(_arr.length, 9); // Throws error if wrong length
-            for(let i=0; i<9; i++){
+            Utils.checkLength(_arr.length, this.size); // Throws error if wrong length
+            for(let i=0; i<this.size; i++){
                 this.M[i] = _arr[i];
             }
         } catch(e){
@@ -61,9 +75,9 @@ export default class Mat33{
 
     setIJ(_i, _j, val){
         try{
-            Utils.checkSize(_i, 3);
-            Utils.checkSize(_j, 3);
-            this.M[_i+3*_j] = val;
+            Utils.checkSize(_i, this.numRows);
+            Utils.checkSize(_j, this.numCols);
+            this.M[_i+this.numCols*_j] = val;
         } catch(e){
             console.warn(e.message);
         }
@@ -71,9 +85,9 @@ export default class Mat33{
 
     getIJ(_i, _j){
         try{
-            Utils.checkSize(_i, 3);
-            Utils.checkSize(_j, 3);
-            return this.M[_i+3*_j];
+            Utils.checkSize(_i, this.numRows);
+            Utils.checkSize(_j, this.numCols);
+            return this.M[_i+this.numCols*_j];
         } catch(e){
             console.warn(e.message);
         }
@@ -126,7 +140,7 @@ export default class Mat33{
     }
 
     clean(){
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             if(Utils.isZero(this.M[i])) this.M[i] = 0;
         }
     }
@@ -144,7 +158,7 @@ export default class Mat33{
     }
 
     zero(){
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             this.M[i] = 0;
         }
     }
@@ -162,7 +176,7 @@ export default class Mat33{
     }
 
     isZero(){
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             if(!Utils.isZero(this.M[i])) return false;
         }
         return true;
@@ -171,8 +185,8 @@ export default class Mat33{
     isEqual(_M){
         try{ 
             Utils.checkLength(_M.M.length, this.M.length);
-            for(let i=0; i<9; i++){
-                if(this.M[i] !== _M.M[i]) return false;
+            for(let i=0; i<this.size; i++){
+                if(!Utils.areEqual(this.M[i], _M.M[i])) return false;
             }
             return true;
         } catch(e) {
@@ -182,28 +196,30 @@ export default class Mat33{
     }
 
     add(_M){
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             this.M[i] += _M.M[i];
         }
     }
 
-    getAdd(_M){
-        let ret = new Mat33();
-        for(let i=0; i<9; i++){
+    getAdd(_M){ 
+        // Using this.getCopy to allow for class inheritance
+        let ret = this.getCopy();
+        for(let i=0; i<this.size; i++){
             ret.M[i] = this.M[i] + _M.M[i];
         }
         return ret;
     }
 
     subtract(_M){
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             this.M[i] -= _M.M[i];
         }
     }
 
     getSubtract(_M){
-        let ret = new Mat33();
-        for(let i=0; i<9; i++){
+        // Using this.getCopy to allow for class inheritance
+        let ret = this.getCopy();
+        for(let i=0; i<this.size; i++){
             ret.M[i] = this.M[i] - _M.M[i];
         }
         return ret;
@@ -222,7 +238,7 @@ export default class Mat33{
         res.M[7] = this.M[1]*_M.M[6] + this.M[4]*_M.M[7] + this.M[7]*_M.M[8];
         res.M[8] = this.M[2]*_M.M[6] + this.M[5]*_M.M[7] + this.M[8]*_M.M[8];
 
-        for(let i=0; i<9; i++){
+        for(let i=0; i<this.size; i++){
             this.M[i] = res[i];
         }
     }
@@ -252,28 +268,19 @@ export default class Mat33{
     }
 
     scale(s){
-        this.M[0] *= s;
-        this.M[1] *= s;
-        this.M[2] *= s;
-        this.M[3] *= s;
-        this.M[4] *= s;
-        this.M[5] *= s;
-        this.M[6] *= s;
-        this.M[7] *= s;
-        this.M[8] *= s;
+        for(let i=0; i<this.size; i++){
+            this.M[i] *= s;
+        }
     }
 
     getScale(s){
         let ret = new Mat33();
-        ret.M[0] = this.M[0] * s;
-        ret.M[1] = this.M[1] * s;
-        ret.M[2] = this.M[2] * s;
-        ret.M[3] = this.M[3] * s;
-        ret.M[4] = this.M[4] * s;
-        ret.M[5] = this.M[5] * s;
-        ret.M[6] = this.M[6] * s;
-        ret.M[7] = this.M[7] * s;
-        ret.M[8] = this.M[8] * s;
+        // Doing this in a for-loop is probably slower 
+        // than accessing each array elem individually.
+        // I might test that one day...
+        for(let i=0; i<this.size; i++){
+            ret.M[i] = this.M[i] * s;
+        }
         return ret;
     }
 
@@ -362,7 +369,7 @@ export default class Mat33{
 
     inverse(){
         let inv = this.getInverse(this); 
-        this.M = inv.M;
+        this.setMat(inv.M);
     }
 
     getCopy(){

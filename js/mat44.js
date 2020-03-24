@@ -1,4 +1,8 @@
-class Mat44{
+import * as Utils from './utils.js';
+import Vec4 from './vec4.js';
+import Mat33 from './mat33.js';
+
+export default class Mat44 extends Mat33{
 
     /*
      * mV[16]
@@ -26,8 +30,291 @@ class Mat44{
      *
      */
 
-    constructor(){
+    /*
+     * SHAPE: COLUMN MAJOR
+     *
+     * M = [ 0  4  8 12
+     *       1  5  9 13
+     *       2  6 10 14
+     *       3  6 11 15 ]
+     */
+    
+    M = [];
 
+    constructor(){
+        super();
+        this.size = 16;
+        this.numRows = 4;
+        this.numCols = 4;
+        this.type = "Mat44";
+        this.zero();
+    }
+
+    setRows(row0, row1, row2, row3){
+        this.M[0] = row0.x;
+        this.M[4] = row0.y;
+        this.M[8] = row0.z;
+        this.M[12] = row0.w;
+
+        this.M[1] = row1.x;
+        this.M[5] = row1.y;
+        this.M[9] = row1.z;
+        this.M[13] = row1.w;
+
+        this.M[2] = row2.x;
+        this.M[6] = row2.y;
+        this.M[10] = row2.z;
+        this.M[14] = row2.w;
+
+        this.M[3] = row3.x;
+        this.M[7] = row3.y;
+        this.M[11] = row3.z;
+        this.M[15] = row3.w;
+    }
+
+    getRow(i){
+        try{
+            Utils.checkSize(i, 4);
+            return new Vec4(this.M[i], this.M[i+4], this.M[i+8], this.M[i+12]);
+        } catch(e){
+            console.warn(e.message);
+        }
+    }
+
+    setCols(col0, col1, col2){
+        this.M[0] = col0.x;
+        this.M[1] = col0.y;
+        this.M[2] = col0.z;
+        this.M[3] = col0.w;
+
+        this.M[4] = col1.x;
+        this.M[5] = col1.y;
+        this.M[6] = col1.z;
+        this.M[7] = col1.w;
+
+        this.M[8] = col2.x;
+        this.M[9] = col2.y;
+        this.M[10] = col2.z;
+        this.M[11] = col2.w;
+
+        this.M[12] = col3.x;
+        this.M[13] = col3.y;
+        this.M[14] = col3.z;
+        this.M[15] = col3.w;
+    }
+
+    getCol(i){
+        try{
+            Utils.checkSize(i, 4);
+            return new Vec4(this.M[4*i], this.M[4*i+1], this.M[4*i+2], this.M[4*i+3]);
+        } catch(e){
+            console.warn(e.message);
+        }
+    }
+
+    setIdentity(){
+        this.M[0] = 1;
+        this.M[1] = 0;
+        this.M[2] = 0;
+        this.M[3] = 0;
+        this.M[4] = 0;
+        this.M[5] = 1;
+        this.M[6] = 0;
+        this.M[7] = 0;
+        this.M[8] = 0;
+        this.M[9] = 0;
+        this.M[10] = 1;
+        this.M[11] = 0;
+        this.M[12] = 0;
+        this.M[13] = 0;
+        this.M[14] = 0;
+        this.M[15] = 1;
+    }
+
+    isIdentity(){
+        return Utils.areEqual(this.M[0], 1) &&
+            Utils.areEqual(this.M[5], 1) &&
+            Utils.areEqual(this.M[10], 1) &&
+            Utils.areEqual(this.M[15], 1) &&
+            Utils.isZero(this.M[1]) &&
+            Utils.isZero(this.M[2]) &&
+            Utils.isZero(this.M[3]) &&
+            Utils.isZero(this.M[4]) &&
+            Utils.isZero(this.M[6]) &&
+            Utils.isZero(this.M[7]) &&
+            Utils.isZero(this.M[8]) &&
+            Utils.isZero(this.M[9]) &&
+            Utils.isZero(this.M[11]) &&
+            Utils.isZero(this.M[12]) &&
+            Utils.isZero(this.M[13]) &&
+            Utils.isZero(this.M[14]);
+    }
+
+    multiplyMat(_M){
+        let res = new Mat44();
+
+        res.M[0] = this.M[0]*_M.M[0] + this.M[4]*_M.M[1] + this.M[8]*_M.M[2] + this.M[12]*_M.M[3];
+        res.M[1] = this.M[1]*_M.M[0] + this.M[5]*_M.M[1] + this.M[9]*_M.M[2] + this.M[13]*_M.M[3];
+        res.M[2] = this.M[2]*_M.M[0] + this.M[6]*_M.M[1] + this.M[10]*_M.M[2] + this.M[14]*_M.M[3];
+        res.M[3] = this.M[3]*_M.M[0] + this.M[7]*_M.M[1] + this.M[11]*_M.M[2] + this.M[15]*_M.M[3];
+
+        res.M[4] = this.M[0]*_M.M[4] + this.M[4]*_M.M[5] + this.M[8]*_M.M[6] + this.M[12]*_M.M[7];
+        res.M[5] = this.M[1]*_M.M[4] + this.M[5]*_M.M[5] + this.M[9]*_M.M[6] + this.M[13]*_M.M[7];
+        res.M[6] = this.M[2]*_M.M[4] + this.M[6]*_M.M[5] + this.M[10]*_M.M[6] + this.M[14]*_M.M[7];
+        res.M[7] = this.M[3]*_M.M[4] + this.M[7]*_M.M[5] + this.M[11]*_M.M[6] + this.M[15]*_M.M[7];
+
+        res.M[8] = this.M[0]*_M.M[8] + this.M[4]*_M.M[9] + this.M[8]*_M.M[10] + this.M[12]*_M.M[11];
+        res.M[9] = this.M[1]*_M.M[8] + this.M[5]*_M.M[9] + this.M[9]*_M.M[10] + this.M[13]*_M.M[11];
+        res.M[10] = this.M[2]*_M.M[8] + this.M[6]*_M.M[9] + this.M[10]*_M.M[10] + this.M[14]*_M.M[11];
+        res.M[11] = this.M[3]*_M.M[8] + this.M[7]*_M.M[9] + this.M[11]*_M.M[10] + this.M[15]*_M.M[11];
+
+        res.M[12] = this.M[0]*_M.M[12] + this.M[4]*_M.M[13] + this.M[8]*_M.M[14] + this.M[12]*_M.M[15];
+        res.M[13] = this.M[1]*_M.M[12] + this.M[5]*_M.M[13] + this.M[9]*_M.M[14] + this.M[13]*_M.M[15];
+        res.M[14] = this.M[2]*_M.M[12] + this.M[6]*_M.M[13] + this.M[10]*_M.M[14] + this.M[14]*_M.M[15];
+        res.M[15] = this.M[3]*_M.M[12] + this.M[7]*_M.M[13] + this.M[11]*_M.M[14] + this.M[15]*_M.M[15];
+
+
+        for(let i=0; i<this.size; i++){
+            this.M[i] = res[i];
+        }
+    }
+    getMultiplyMat(_M){
+        let ret = new Mat44();
+
+        ret.M[0]  = this.M[0]*_M.M[0] + this.M[4]*_M.M[1] + this.M[8]*_M.M[2] + this.M[12]*_M.M[3];
+        ret.M[1]  = this.M[1]*_M.M[0] + this.M[5]*_M.M[1] + this.M[9]*_M.M[2] + this.M[13]*_M.M[3];
+        ret.M[2]  = this.M[2]*_M.M[0] + this.M[6]*_M.M[1] + this.M[10]*_M.M[2] + this.M[14]*_M.M[3];
+        ret.M[3]  = this.M[3]*_M.M[0] + this.M[7]*_M.M[1] + this.M[11]*_M.M[2] + this.M[15]*_M.M[3];
+
+        ret.M[4]  = this.M[0]*_M.M[4] + this.M[4]*_M.M[5] + this.M[8]*_M.M[6] + this.M[12]*_M.M[7];
+        ret.M[5]  = this.M[1]*_M.M[4] + this.M[5]*_M.M[5] + this.M[9]*_M.M[6] + this.M[13]*_M.M[7];
+        ret.M[6]  = this.M[2]*_M.M[4] + this.M[6]*_M.M[5] + this.M[10]*_M.M[6] + this.M[14]*_M.M[7];
+        ret.M[7]  = this.M[3]*_M.M[4] + this.M[7]*_M.M[5] + this.M[11]*_M.M[6] + this.M[15]*_M.M[7];
+
+        ret.M[8]  = this.M[0]*_M.M[8] + this.M[4]*_M.M[9] + this.M[8]*_M.M[10] + this.M[12]*_M.M[11];
+        ret.M[9]  = this.M[1]*_M.M[8] + this.M[5]*_M.M[9] + this.M[9]*_M.M[10] + this.M[13]*_M.M[11];
+        ret.M[10] = this.M[2]*_M.M[8] + this.M[6]*_M.M[9] + this.M[10]*_M.M[10] + this.M[14]*_M.M[11];
+        ret.M[11] = this.M[3]*_M.M[8] + this.M[7]*_M.M[9] + this.M[11]*_M.M[10] + this.M[15]*_M.M[11];
+
+        ret.M[12] = this.M[0]*_M.M[12] + this.M[4]*_M.M[13] + this.M[8]*_M.M[14] + this.M[12]*_M.M[15];
+        ret.M[13] = this.M[1]*_M.M[12] + this.M[5]*_M.M[13] + this.M[9]*_M.M[14] + this.M[13]*_M.M[15];
+        ret.M[14] = this.M[2]*_M.M[12] + this.M[6]*_M.M[13] + this.M[10]*_M.M[14] + this.M[14]*_M.M[15];
+        ret.M[15] = this.M[3]*_M.M[12] + this.M[7]*_M.M[13] + this.M[11]*_M.M[14] + this.M[15]*_M.M[15];
+
+        return ret;
+    }
+
+
+    getMultiplyVec(v){
+        let ret = new Vec4();
+        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12]*v.w;
+        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13]*v.w;
+        ret.z = this.M[2]*v.x + this.M[7]*v.y + this.M[10]*v.z + this.M[14]*v.w;
+        ret.w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15]*v.w;
+        return ret;
+    }
+
+    transpose(){
+        let tmp = this.M[1];
+        this.M[1] = this.M[4];
+        this.M[4] = tmp;
+
+        tmp = this.M[2];
+        this.M[2] = this.M[8];
+        this.M[8] = tmp;
+
+        tmp = this.M[3];
+        this.M[3] = this.M[12];
+        this.M[12] = tmp;
+
+        tmp = this.M[6];
+        this.M[6] = this.M[9];
+        this.M[9] = tmp;
+
+        tmp = this.M[7];
+        this.M[7] = this.M[13];
+        this.M[13] = tmp;
+
+        tmp = this.M[11];
+        this.M[11] = this.M[14];
+        this.M[14] = tmp;
+    }
+
+    getTranspose(){
+        let ret = new Mat44();
+
+        ret.M[0] = this.M[0];
+        ret.M[1] = this.M[4];
+        ret.M[2] = this.M[8];
+        ret.M[3] = this.M[12];
+        ret.M[4] = this.M[1];
+        ret.M[5] = this.M[5];
+        ret.M[6] = this.M[9];
+        ret.M[7] = this.M[13];
+        ret.M[8] = this.M[2];
+        ret.M[9] = this.M[6];
+        ret.M[10] = this.M[10];
+        ret.M[11] = this.M[14];
+        ret.M[12] = this.M[3];
+        ret.M[13] = this.M[7];
+        ret.M[14] = this.M[11];
+        ret.M[15] = this.M[15];
+
+        return ret;
+    }
+
+    getAffineInverse(_M){
+
+        let ret = new Mat44();
+
+        let cofactor0 = _M.M[5]*_M.M[10] - _M.M[6]*_M.M[9];
+        let cofactor4 = _M.M[2]*_M.M[9] - _M.M[1]*_M.M[10];
+        let cofactor8 = _M.M[1]*_M.M[6] - _M.M[2]*_M.M[5];
+        let det = _M.M[0]*cofactor0 + _M.M[4]*cofactor4 + _M.M[8]*cofactor8;
+
+        if(Utils.isZero(det)) {
+            throw new Utils.userException("Singular Matrix: Non-Invertible!");
+        }
+
+        // create adjunct matrix and multiply by 1/det to get upper 3x3
+        let invDet = 1/det;
+        ret.M[0] = invDet*cofactor0;
+        ret.M[1] = invDet*cofactor4;
+        ret.M[2] = invDet*cofactor8;
+
+        ret.M[4] = invDet*(_M.M[6]*_M.M[8]  - _M.M[4]*_M.M[10]);
+        ret.M[5] = invDet*(_M.M[0]*_M.M[10] - _M.M[2]*_M.M[8]);
+        ret.M[6] = invDet*(_M.M[2]*_M.M[4]  - _M.M[0]*_M.M[6]);
+
+        ret.M[8] = invDet*(_M.M[4]*_M.M[9]  - _M.M[5]*_M.M[8]);
+        ret.M[9] = invDet*(_M.M[1]*_M.M[8]  - _M.M[0]*_M.M[9]);
+        ret.M[10] = invDet*(_M.M[0]*_M.M[5] - _M.M[1]*_M.M[4]);
+
+        // multiply -translation by inverted 3x3 to get its inverse
+        ret.M[12] = -ret.M[0]*_M.M[12] - ret.M[4]*_M.M[13] - ret.M[8]*_M.M[14];
+        ret.M[13] = -ret.M[1]*_M.M[12] - ret.M[5]*_M.M[13] - ret.M[9]*_M.M[14];
+        ret.M[14] = -ret.M[2]*_M.M[12] - ret.M[6]*_M.M[13] - ret.M[10]*_M.M[14];
+
+        // bottom row [0, 0, 0, 1]
+        ret.M[3] = ret.M[7] = ret.M[11] = 0;
+        ret.M[15] = 1;
+
+
+        return ret;
+    }
+
+    affineInverse(){
+        let affInv = this.getAffineInverse(this);
+        for(let i=0; i<this.size; i++){
+            affInv.M[i] = Utils.round(affInv.M[i]);
+        }
+        this.setMat(affInv.M);
+    }
+
+    getCopy(){
+        let ret = new Mat44();
+        ret.setMat(this.M);
+        return ret;
     }
 
 }

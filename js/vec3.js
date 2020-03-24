@@ -116,6 +116,10 @@ export default class Vec3{
         this.z = 0;
     }
 
+    toArray(){
+        return [this.x, this.y, this.z];
+    }
+
     normalize(){
         let lSq = this.lengthSquared;
         if(lSq < Utils.smallNum) this.zero();

@@ -97,6 +97,10 @@ export default class Vec4 extends Vec3{
         this.w = this.w < Utils.smallNum ? 0 : this.w;
     }
 
+    toArray(){
+        return [this.x, this.y, this.z, this.w];
+    }
+
     normalize(){
         let lSq = this.lengthSquared;
         if(lSq < Utils.smallNum) this.zero();

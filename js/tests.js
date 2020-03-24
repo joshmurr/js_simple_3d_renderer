@@ -3,8 +3,9 @@ import { SimpleTest } from './simpleTest.js';
 import Vec3 from './vec3.js';
 import Vec4 from './vec4.js';
 import Mat33 from './mat33.js';
+import Mat44 from './mat44.js';
 
-// VEC3 -----------------------------------------------------------------
+// Vec3 -----------------------------------------------------------------
 let v = new Vec3(1, -2, 3);
 let v_norm = new Vec3(1/Math.sqrt(14), -Math.sqrt(2/7), 3/Math.sqrt(14));
 let w = new Vec3(0, 3, -1);
@@ -18,7 +19,7 @@ let id1 = new Vec3(0, 1, 0);
 let id2 = new Vec3(0, 0, 1);
 // ----------------------------------------------------------------------
 
-// VEC4 -----------------------------------------------------------------
+// Vec4 -----------------------------------------------------------------
 let v4 = new Vec4(1, -2, 3, 5);
 let v4_norm = new Vec4(1/Math.sqrt(39), -2/Math.sqrt(39), Math.sqrt(3/13), 5/Math.sqrt(39));
 // let w4 = new Vec4(0, 3, -1, 2);
@@ -27,13 +28,13 @@ let v4_norm = new Vec4(1/Math.sqrt(39), -2/Math.sqrt(39), Math.sqrt(3/13), 5/Mat
 let z4 = new Vec4(10, 10, 10, 10);
 z4.zero();
 
-// let id0 = new Vec4(1, 0, 0, 0);
-// let id1 = new Vec4(0, 1, 0, 0);
-// let id2 = new Vec4(0, 0, 1, 0);
-// let id3 = new Vec4(0, 0, 0, 1);
+let mat44_id0 = new Vec4(1, 0, 0, 0);
+let mat44_id1 = new Vec4(0, 1, 0, 0);
+let mat44_id2 = new Vec4(0, 0, 1, 0);
+let mat44_id3 = new Vec4(0, 0, 0, 1);
 // ----------------------------------------------------------------------
 
-// MAT33 ----------------------------------------------------------------
+// Mat33 ----------------------------------------------------------------
 let m1 = new Mat33();
 m1.zero();
 m1.M[0] = 1; m1.M[4] = 3; m1.M[6] = 2; m1.M[8] = 5;
@@ -43,6 +44,43 @@ m2.M[1] = 1; m2.M[2] = 2; m2.M[3] = 3; m2.M[5] = 4; m2.M[6] = 2;
 let m2_inv = new Mat33();
 m2_inv.M[2] = 0.5; m2_inv.M[3] = 1; m2_inv.M[4] = -0.5; m2_inv.M[5] = 0.75; m2_inv.M[7] = 0.25; m2_inv.M[8] = -3/8;
 let m1_copy = m1.getCopy();
+// ----------------------------------------------------------------------
+
+// Mat44 ----------------------------------------------------------------
+let mat44_m1 = new Mat44();
+mat44_m1.M[1]  = 1; 
+mat44_m1.M[2]  = 2; 
+mat44_m1.M[3]  = 1; 
+mat44_m1.M[4]  = 3; 
+mat44_m1.M[6]  = 6;
+mat44_m1.M[7]  = 2;
+mat44_m1.M[8]  = 1;
+mat44_m1.M[9]  = 4;
+mat44_m1.M[10] = 2;
+mat44_m1.M[11] = 1;
+mat44_m1.M[12] = 3;
+mat44_m1.M[14] = 7;
+let mat44_m2 = new Mat44();
+mat44_m2.M[0]  = 3; 
+mat44_m2.M[4]  = 2; 
+mat44_m2.M[5]  = 3; 
+mat44_m2.M[9]  = 2;
+mat44_m2.M[10] = 5;
+mat44_m2.M[13] = 2;
+mat44_m2.M[14] = 3;
+mat44_m2.M[15] = 1;
+let mat44_m2_inv = new Mat44();
+mat44_m2_inv.M[0]  = 1/3;
+mat44_m2_inv.M[4]  = -2/9;
+mat44_m2_inv.M[5]  = 1/3;
+mat44_m2_inv.M[8]  = 4/45;
+mat44_m2_inv.M[9]  = -2/15;
+mat44_m2_inv.M[10] = 1/5;
+mat44_m2_inv.M[12] = 8/45;
+mat44_m2_inv.M[13] = -4/15;
+mat44_m2_inv.M[14] = -3/5;
+mat44_m2_inv.M[15] = 1;
+let mat44_m1_copy = mat44_m1.getCopy();
 // ----------------------------------------------------------------------
 
 var tester = new SimpleTest();
@@ -140,6 +178,7 @@ function test_vec4(){
 }
 // ----------------------------------------------------------------------
 
+// Mat33 ----------------------------------------------------------------
 function test_mat33(){
     tester.test = "mat33";
     tester.assert(
@@ -258,8 +297,190 @@ function test_mat33(){
         m2.getIJ(3,1),
         undefined
     );
-}
 
+    // Set rows
+    let setRows = new Mat33();
+    setRows.setRows(id0, id1, id2);
+    tester.assert(
+        "Check set rows, via isIdentity.",
+        setRows.isIdentity(),
+        true
+    );
+
+    let add = m1.getAdd(m2);
+    let addResult = new Mat33();
+    addResult.setMat([1, 1, 2, 3, 3, 4, 4, 0, 5]);
+    tester.assert(
+        "Add.",
+        add.isEqual(addResult),
+        true
+    );
+
+
+}
+// ----------------------------------------------------------------------
+
+// Mat44 ----------------------------------------------------------------
+function test_mat44(){
+    tester.test = "mat44";
+    tester.assert(
+        "Check equals to.",
+        mat44_m1.isEqual(mat44_m2),
+        false
+    );
+    tester.assert(
+        "Check equals to.",
+        mat44_m1.isEqual(mat44_m1),
+        true
+    );
+    tester.assert(
+        "Test getCopy and isEqual.",
+        mat44_m1_copy.isEqual(mat44_m1),
+        true
+    );
+
+    // Change m1
+    mat44_m1_copy.M[0] = 666;
+    tester.assert(
+        "Change copy, check if still isEqual.",
+        mat44_m1_copy.isEqual(mat44_m1),
+        false
+    );
+
+    // Set to Identity matrix
+    mat44_m1_copy.setIdentity();
+    tester.assert(
+        "Check setIdentity and isIdentity.",
+        mat44_m1_copy.isIdentity(),
+        true
+    );
+
+    let col0 = mat44_m1_copy.getCol(0);
+    let col1 = mat44_m1_copy.getCol(1);
+    let col2 = mat44_m1_copy.getCol(2);
+    let col3 = mat44_m1_copy.getCol(3);
+    tester.assert(
+        "Check col0.",
+        col0.isEqual(mat44_id0),
+        true
+    );
+    tester.assert(
+        "Check col1.",
+        col1.isEqual(mat44_id1),
+        true
+    );
+    tester.assert(
+        "Check col2.",
+        col2.isEqual(mat44_id2),
+        true
+    );
+    tester.assert(
+        "Check col3.",
+        col3.isEqual(mat44_id3),
+        true
+    );
+    let row0 = mat44_m1_copy.getRow(0);
+    let row1 = mat44_m1_copy.getRow(1);
+    let row2 = mat44_m1_copy.getRow(2);
+    let row3 = mat44_m1_copy.getRow(3);
+    tester.assert(
+        "Check row0.",
+        row0.isEqual(mat44_id0),
+        true
+    );
+    tester.assert(
+        "Check row1.",
+        row1.isEqual(mat44_id1),
+        true
+    );
+    tester.assert(
+        "Check row2.",
+        row2.isEqual(mat44_id2),
+        true
+    );
+    tester.assert(
+        "Check row3.",
+        row3.isEqual(mat44_id3),
+        true
+    );
+        
+    let inv = mat44_m1.getAffineInverse(mat44_m2);
+    tester.assert(
+        "Test getInverse.",
+        inv.isEqual(mat44_m2_inv),
+        true
+    );
+    let mat44_m2_copy = mat44_m2.getCopy();
+    mat44_m2.affineInverse();
+    tester.assert(
+        "Test inverse.",
+        mat44_m2.isEqual(mat44_m2_inv),
+        true
+    );
+    mat44_m2.affineInverse();
+    tester.assert(
+        "Test inverse of inverse (original).",
+        mat44_m2.isEqual(mat44_m2_copy),
+        true
+    );
+
+    mat44_m2_copy.setMat(mat44_m1.M);
+    tester.assert(
+        "Test setMat.",
+        mat44_m2_copy.isEqual(mat44_m1),
+        true
+    );
+
+    // Get (i,j)
+    console.log( mat44_m2.getIJ(0,0));
+    tester.assert(
+        "Test getIJ(0,0).",
+        mat44_m2.getIJ(0,0),
+        3
+    );
+    tester.assert(
+        "Test getIJ(1,0).",
+        mat44_m2.getIJ(1,0),
+        0
+    );
+    tester.assert(
+        "Test getIJ(2,2).",
+        mat44_m2.getIJ(2,2),
+        5
+    );
+    tester.assert(
+        "Test getIJ(3,0).",
+        mat44_m2.getIJ(3,0),
+        0
+    );
+    tester.assert(
+        "Test getIJ(3,4).",
+        mat44_m2.getIJ(3,4),
+        undefined
+    );
+
+    // Set rows
+    let setRows = new Mat44();
+    setRows.setRows(mat44_id0, mat44_id1, mat44_id2, mat44_id3);
+    tester.assert(
+        "Check set rows, via isIdentity.",
+        setRows.isIdentity(),
+        true
+    );
+
+    let add = mat44_m1.getAdd(mat44_m2);
+    let addResult = new Mat44();
+    addResult.setMat([3, 1, 2, 1, 5, 3, 6, 2, 1, 6, 7, 1, 3, 2, 10, 1]);
+    tester.assert(
+        "Add.",
+        add.isEqual(addResult),
+        true
+    );
+
+
+}
+// ----------------------------------------------------------------------
+// Utils ----------------------------------------------------------------
 function test_utils(){
     tester.test = "utils";
     tester.assert(
@@ -283,7 +504,9 @@ function test_utils(){
         true
     );
 }
+// ----------------------------------------------------------------------
 
-test_vec4();
+// test_vec4();
 // test_mat33();
+test_mat44();
 console.log(tester.log);

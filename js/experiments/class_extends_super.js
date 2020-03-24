@@ -7,6 +7,10 @@ class Vec2 {
     get sum(){
         return this.x+this.y;
     }
+
+    printWords(){
+        console.log("words");
+    }
 }
 
 class Vec3 extends Vec2{
@@ -25,3 +29,5 @@ console.log(v2.sum);
 
 let v3 = new Vec3(2, 3, 4);
 console.log(v3.sum);
+
+v3.printWords();
