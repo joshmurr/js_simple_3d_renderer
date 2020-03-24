@@ -1,7 +1,8 @@
 import * as Utils from './utils.js';
 import { SimpleTest } from './simpleTest.js';
-import { Vec3 } from './vec3.js';
-import { Mat33 } from './mat33.js';
+import Vec3 from './vec3.js';
+import Vec4 from './vec4.js';
+import Mat33 from './mat33.js';
 
 // VEC3 -----------------------------------------------------------------
 let v = new Vec3(1, -2, 3);
@@ -15,7 +16,21 @@ z.zero();
 let id0 = new Vec3(1, 0, 0);
 let id1 = new Vec3(0, 1, 0);
 let id2 = new Vec3(0, 0, 1);
+// ----------------------------------------------------------------------
 
+// VEC4 -----------------------------------------------------------------
+let v4 = new Vec4(1, -2, 3, 5);
+let v4_norm = new Vec4(1/Math.sqrt(39), -2/Math.sqrt(39), Math.sqrt(3/13), 5/Math.sqrt(39));
+// let w4 = new Vec4(0, 3, -1, 2);
+// let w4_dot = -9;
+// let w_cross = new Vec3(-7, 1, 3);
+let z4 = new Vec4(10, 10, 10, 10);
+z4.zero();
+
+// let id0 = new Vec4(1, 0, 0, 0);
+// let id1 = new Vec4(0, 1, 0, 0);
+// let id2 = new Vec4(0, 0, 1, 0);
+// let id3 = new Vec4(0, 0, 0, 1);
 // ----------------------------------------------------------------------
 
 // MAT33 ----------------------------------------------------------------
@@ -71,6 +86,59 @@ function test_vec3(){
         true
     );
 }
+
+// Vec4 -----------------------------------------------------------------
+function test_vec4(){
+    tester.test = "vec4";
+    tester.assert(
+        "Check lengthSquared is correct.",
+        v4.lengthSquared, 
+        39
+    );
+    tester.assert(
+        "Check vector is equal to itself.",
+        v4.isEqual(new Vec4(1, -2, 3, 5)),
+        true
+    );
+
+    let norm_test = v4.getNormalize();
+    tester.assert(
+        "Normalisation",
+        norm_test.isEqual(v4_norm),
+        true
+    );
+
+/*
+ *     tester.assert(
+ *         "Dot Product",
+ *         Utils.areEqual(v.dot(w), w_dot),
+ *         true
+ *     );
+ *
+ *     let cross_test = v.cross(w);
+ *     tester.assert(
+ *         "Cross Product",
+ *         cross_test.isEqual(w_cross),
+ *         true
+ *     );
+ */
+
+    tester.assert(
+        "Zero function working, and isZero",
+        z4.isZero(),
+        true
+    );
+
+    let addTo = new Vec4(-2, 3, 1, -4);
+    v4.add(addTo);
+    let addToResult = new Vec4(-1, 1, 4, 1);
+    tester.assert(
+        "Addition working.",
+        v4.isEqual(addToResult),
+        true
+    );
+}
+// ----------------------------------------------------------------------
 
 function test_mat33(){
     tester.test = "mat33";
@@ -171,22 +239,22 @@ function test_mat33(){
 
     // Get (i,j)
     tester.assert(
-        "Test setMat via the determinant.",
+        "Test getIJ.",
         m2.getIJ(0,0),
         0
     );
     tester.assert(
-        "Test setMat via the determinant.",
+        "Test getIJ.",
         m2.getIJ(1,0),
         1
     );
     tester.assert(
-        "Test setMat via the determinant.",
+        "Test getIJ.",
         m2.getIJ(2,1),
         4
     );
     tester.assert(
-        "Test setMat via the determinant.",
+        "Test getIJ.",
         m2.getIJ(3,1),
         undefined
     );
@@ -216,6 +284,6 @@ function test_utils(){
     );
 }
 
-// test_vec3();
-test_mat33();
+test_vec4();
+// test_mat33();
 console.log(tester.log);

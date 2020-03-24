@@ -1,6 +1,6 @@
 import * as Utils from './utils.js';
 
-export class Vec3{
+export default class Vec3{
 
     /*
      * Length : float
@@ -23,14 +23,22 @@ export class Vec3{
      *
      */
 
-    x = 0;
-    y = 0;
-    z = 0;
-
     constructor(_x, _y, _z){
         this.x = _x;
         this.y = _y;
         this.z = _z;
+    }
+
+    static get type(){
+        return "Vec3";
+    }
+
+    printProps(){
+        console.group("Vec3:");
+        console.log("x: " + this.x);
+        console.log("y: " + this.y);
+        console.log("z: " + this.z);
+        console.groupEnd();
     }
 
     get lengthSquared(){
