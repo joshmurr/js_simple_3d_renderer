@@ -24,8 +24,8 @@ var areEqual = function(a, b, epsilon=smallNum){
     return (Math.abs(a-b) <= (epsilon*(Math.abs(a)+Math.abs(b)+1)));
 }
 
-var checkLength = function(_M, l){
-    if(_M.length !== l) 
+var checkLength = function(k, l){
+    if(k !== l) 
         throw new userException("Trying to copy Matrix of wrong length!");
 }
 

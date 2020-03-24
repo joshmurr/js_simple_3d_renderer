@@ -1,9 +1,13 @@
 export class SimpleTest{
-    log = [];
+    log = {};
     id = 0;
 
     constructor(){
 
+    }
+
+    set test(s){
+        this.currentTests = s;
     }
 
     get log(){
@@ -11,14 +15,13 @@ export class SimpleTest{
     }
 
     createLogEntry(message, actual, expected, result){
-        let entry = {
-            "ID" : this.id++,
+        this.log[String(this.id++ + '_' + this.currentTests)] = {
+            // "ID" : this.id++,
             "result" : result,
             "message" : message,
             "expected" : expected,
             "actual" : actual
         };
-        this.log.push(entry);
     }
 
 

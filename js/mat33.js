@@ -1,4 +1,5 @@
 import * as Utils from './utils.js';
+import { Vec3 } from './vec3.js';
 
 export class Mat33{
 
@@ -49,7 +50,7 @@ export class Mat33{
 
     setMat(_arr){
         try{
-            Utils.checkLength(_arr, 9); // Throws error if wrong length
+            Utils.checkLength(_arr.length, 9); // Throws error if wrong length
             for(let i=0; i<9; i++){
                 this.M[i] = _arr[i];
             }
@@ -165,6 +166,19 @@ export class Mat33{
             if(!Utils.isZero(this.M[i])) return false;
         }
         return true;
+    }
+
+    isEqual(_M){
+        try{ 
+            Utils.checkLength(_M.M.length, this.M.length);
+            for(let i=0; i<9; i++){
+                if(this.M[i] !== _M.M[i]) return false;
+            }
+            return true;
+        } catch(e) {
+            console.warn(e.message);
+        }
+        
     }
 
     add(_M){
@@ -349,6 +363,12 @@ export class Mat33{
     inverse(){
         let inv = this.getInverse(this); 
         this.M = inv.M;
+    }
+
+    getCopy(){
+        let ret = new Mat33();
+        ret.setMat(this.M);
+        return ret;
     }
 
 }
