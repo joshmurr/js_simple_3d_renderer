@@ -1,9 +1,9 @@
-import * as Utils from './utils.js';
+import * as Utils from '../math/utils.js';
 import { SimpleTest } from './simpleTest.js';
-import Vec3 from './vec3.js';
-import Vec4 from './vec4.js';
-import Mat33 from './mat33.js';
-import Mat44 from './mat44.js';
+import Vec3 from '../math/vec3.js';
+import Vec4 from '../math/vec4.js';
+import Mat33 from '../math/mat33.js';
+import Mat44 from '../math/mat44.js';
 
 // Vec3 -----------------------------------------------------------------
 let v = new Vec3(1, -2, 3);
@@ -432,7 +432,6 @@ function test_mat44(){
     );
 
     // Get (i,j)
-    console.log( mat44_m2.getIJ(0,0));
     tester.assert(
         "Test getIJ(0,0).",
         mat44_m2.getIJ(0,0),
