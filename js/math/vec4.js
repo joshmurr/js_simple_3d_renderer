@@ -21,12 +21,13 @@ export default class Vec4 extends Vec3{
      *
      */
 
+
     constructor(_x, _y, _z, _w=1){
         super(_x, _y, _z);
         this.w = _w;
     }
 
-    static get type(){
+    getType(){
         return "Vec4";
     }
 
@@ -95,6 +96,11 @@ export default class Vec4 extends Vec3{
     clean(){
         super.clean();
         this.w = this.w < Utils.smallNum ? 0 : this.w;
+    }
+
+    negate(){
+        super.negate();
+        this.w = -this.w;
     }
 
     toArray(){

@@ -38,7 +38,7 @@ export default class Mat44 extends Mat33{
      *       2  6 10 14
      *       3  6 11 15 ]
      */
-    
+
     M = [];
 
     constructor(){
@@ -54,22 +54,27 @@ export default class Mat44 extends Mat33{
         this.M[0] = row0.x;
         this.M[4] = row0.y;
         this.M[8] = row0.z;
-        this.M[12] = row0.w;
 
         this.M[1] = row1.x;
         this.M[5] = row1.y;
         this.M[9] = row1.z;
-        this.M[13] = row1.w;
 
         this.M[2] = row2.x;
         this.M[6] = row2.y;
         this.M[10] = row2.z;
-        this.M[14] = row2.w;
 
         this.M[3] = row3.x;
         this.M[7] = row3.y;
         this.M[11] = row3.z;
-        this.M[15] = row3.w;
+
+        if(row0.getType() == "Vec3") this.M[12] = 0;
+        else this.M[12] = row0.w;
+        if(row1.getType() == "Vec3") this.M[13] = 0;
+        else this.M[13] = row1.w;
+        if(row2.getType() == "Vec3") this.M[14] = 0;
+        else this.M[14] = row2.w;
+        if(row3.getType() == "Vec3") this.M[15] = 1;
+        else this.M[15] = row3.w;
     }
 
     getRow(i){
@@ -81,7 +86,7 @@ export default class Mat44 extends Mat33{
         }
     }
 
-    setCols(col0, col1, col2){
+    setCols(col0, col1, col2, col3){
         this.M[0] = col0.x;
         this.M[1] = col0.y;
         this.M[2] = col0.z;
@@ -110,6 +115,28 @@ export default class Mat44 extends Mat33{
         } catch(e){
             console.warn(e.message);
         }
+    }
+
+    setFromMat33(_M33){
+        this.M[0] = _M33.M[0];
+        this.M[1] = _M33.M[1];
+        this.M[2] = _M33.M[2];
+        this.M[3] = 0;
+
+        this.M[4] = _M33.M[4];
+        this.M[5] = _M33.M[5];
+        this.M[6] = _M33.M[6];
+        this.M[7] = 0;
+
+        this.M[8] = _M33.M[7];
+        this.M[9] = _M33.M[8];
+        this.M[10] = _M33.M[9];
+        this.M[11] = 0;
+
+        this.M[12] = 0;
+        this.M[13] = 0;
+        this.M[14] = 0;
+        this.M[15] = 1;
     }
 
     setIdentity(){

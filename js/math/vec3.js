@@ -23,15 +23,17 @@ export default class Vec3{
      *
      */
 
+
     constructor(_x, _y, _z){
         this.x = _x;
         this.y = _y;
         this.z = _z;
     }
 
-    static get type(){
+    getType(){
         return "Vec3";
     }
+
 
     printProps(){
         console.group("Vec3:");
@@ -55,10 +57,18 @@ export default class Vec3{
         this.z += v.z;
     }
 
+    getAdd(v){
+        return new Vec3(this.x+v.x, this.y+v.y, this.z+v.z);
+    }
+
     subtract(v){
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
+    }
+
+    getSubtract(v){
+        return new Vec3(this.x-v.x, this.y-v.y, this.z-v.z);
     }
 
     multiply(s){
@@ -116,6 +126,12 @@ export default class Vec3{
         this.z = 0;
     }
 
+    negate(){
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
+    }
+
     toArray(){
         return [this.x, this.y, this.z];
     }
@@ -143,6 +159,7 @@ export default class Vec3{
 
 
     dot(v){
+        // Returns float
         return this.x*v.x + this.y*v.y + this.z*v.z;
     }
 

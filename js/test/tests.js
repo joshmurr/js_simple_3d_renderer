@@ -4,6 +4,7 @@ import Vec3 from '../math/vec3.js';
 import Vec4 from '../math/vec4.js';
 import Mat33 from '../math/mat33.js';
 import Mat44 from '../math/mat44.js';
+import Renderer from '../render/renderer.js';
 
 // Vec3 -----------------------------------------------------------------
 let v = new Vec3(1, -2, 3);
@@ -48,10 +49,10 @@ let m1_copy = m1.getCopy();
 
 // Mat44 ----------------------------------------------------------------
 let mat44_m1 = new Mat44();
-mat44_m1.M[1]  = 1; 
-mat44_m1.M[2]  = 2; 
-mat44_m1.M[3]  = 1; 
-mat44_m1.M[4]  = 3; 
+mat44_m1.M[1]  = 1;
+mat44_m1.M[2]  = 2;
+mat44_m1.M[3]  = 1;
+mat44_m1.M[4]  = 3;
 mat44_m1.M[6]  = 6;
 mat44_m1.M[7]  = 2;
 mat44_m1.M[8]  = 1;
@@ -61,9 +62,9 @@ mat44_m1.M[11] = 1;
 mat44_m1.M[12] = 3;
 mat44_m1.M[14] = 7;
 let mat44_m2 = new Mat44();
-mat44_m2.M[0]  = 3; 
-mat44_m2.M[4]  = 2; 
-mat44_m2.M[5]  = 3; 
+mat44_m2.M[0]  = 3;
+mat44_m2.M[4]  = 2;
+mat44_m2.M[5]  = 3;
 mat44_m2.M[9]  = 2;
 mat44_m2.M[10] = 5;
 mat44_m2.M[13] = 2;
@@ -89,7 +90,7 @@ function test_vec3(){
     tester.test = "vec3";
     tester.assert(
         "Check lengthSquared is correct.",
-        v.lengthSquared, 
+        v.lengthSquared,
         14
     );
     tester.assert(
@@ -130,7 +131,7 @@ function test_vec4(){
     tester.test = "vec4";
     tester.assert(
         "Check lengthSquared is correct.",
-        v4.lengthSquared, 
+        v4.lengthSquared,
         39
     );
     tester.assert(
@@ -146,20 +147,20 @@ function test_vec4(){
         true
     );
 
-/*
- *     tester.assert(
- *         "Dot Product",
- *         Utils.areEqual(v.dot(w), w_dot),
- *         true
- *     );
- *
- *     let cross_test = v.cross(w);
- *     tester.assert(
- *         "Cross Product",
- *         cross_test.isEqual(w_cross),
- *         true
- *     );
- */
+    /*
+     *     tester.assert(
+     *         "Dot Product",
+     *         Utils.areEqual(v.dot(w), w_dot),
+     *         true
+     *     );
+     *
+     *     let cross_test = v.cross(w);
+     *     tester.assert(
+     *         "Cross Product",
+     *         cross_test.isEqual(w_cross),
+     *         true
+     *     );
+     */
 
     tester.assert(
         "Zero function working, and isZero",
@@ -249,7 +250,7 @@ function test_mat33(){
         row2.isEqual(id2),
         true
     );
-        
+
     let inv = m1.getInverse(m2);
     tester.assert(
         "Test getInverse.",
@@ -268,7 +269,7 @@ function test_mat33(){
         inv.getDeterminant(),
         8
     );
-    
+
     m2.setMat(inv.M);
     tester.assert(
         "Test setMat via the determinant.",
@@ -403,7 +404,7 @@ function test_mat44(){
         row3.isEqual(mat44_id3),
         true
     );
-        
+
     let inv = mat44_m1.getAffineInverse(mat44_m2);
     tester.assert(
         "Test getInverse.",
@@ -479,6 +480,81 @@ function test_mat44(){
 
 }
 // ----------------------------------------------------------------------
+tester.test = "renderer";
+// Renderer ----------------------------------------------------------------
+function test_renderer(){
+    tester.test = "renderer";
+
+    let renderer = new Renderer();
+
+    let expectedViewMat = new Mat44();
+    expectedViewMat.M[0]  = Number("9.92277877e-01");   // M[0]
+    expectedViewMat.M[4]  = Number("-5.51265487e-02");  // M[4]
+    expectedViewMat.M[8]  = Number("-1.11111111e-01");  // M[8]
+    expectedViewMat.M[12] = Number("0.00000000e+00");   // M[12]
+    expectedViewMat.M[1]  = Number("-0.00000000e+00");  // M[1]
+    expectedViewMat.M[5]  = Number("8.95806416e-01");   // M[5]
+    expectedViewMat.M[9]  = Number("-4.44444444e-01");  // M[9]
+    expectedViewMat.M[13] = Number("0.00000000e+00");   // M[13]
+    expectedViewMat.M[2]  = Number("1.24034735e-01");   // M[2]
+    expectedViewMat.M[6]  = Number("4.41012390e-01");   // M[6]
+    expectedViewMat.M[10] = Number("8.88888889e-01");   // M[10]
+    expectedViewMat.M[14] = Number("0.00000000e+00");   // M[14]
+    expectedViewMat.M[3]  = Number("-0.00000000e+00");  // M[3]
+    expectedViewMat.M[7]  = Number("-0.00000000e+00");  // M[7]
+    expectedViewMat.M[11] = Number("-1.35000000e+02");  // M[11]
+    expectedViewMat.M[15] = Number("1.00000000e+00");   // M[15]
+
+
+    let camera = new Vec3(-15, -60, 120);
+    let target = new Vec3(0, 0, 0);
+    let up = new Vec3(0, 1, 0);
+
+    let viewMat = renderer.createViewMatrix(camera, target, up);
+    // console.group("Expected:");
+    // expectedViewMat.printProps();
+    // console.groupEnd();
+    // console.group("Mine:");
+    // viewMat.printProps();
+    // console.groupEnd();
+
+    tester.assert(
+        "createViewMatrix.",
+        viewMat.isEqual(expectedViewMat),
+        true
+    );
+    
+    let expectedProjectionMat = new Mat44();
+    expectedProjectionMat.M[0]  = 7.59575411; 
+    expectedProjectionMat.M[4]  = 0; 
+    expectedProjectionMat.M[8]  = 0; 
+    expectedProjectionMat.M[12] = 0; 
+    expectedProjectionMat.M[1]  = 0; 
+    expectedProjectionMat.M[5]  = 7.59575411; 
+    expectedProjectionMat.M[9]  = 0; 
+    expectedProjectionMat.M[13] = 0; 
+    expectedProjectionMat.M[2]  = 0; 
+    expectedProjectionMat.M[6]  = 0; 
+    expectedProjectionMat.M[10] = -1.10526316; 
+    expectedProjectionMat.M[14] = -1; 
+    expectedProjectionMat.M[3]  = 0; 
+    expectedProjectionMat.M[7]  = 0; 
+    expectedProjectionMat.M[11] = -21.05263158;
+    expectedProjectionMat.M[15] = 0;
+
+    let projectionMatrix = renderer.createPerspectiveProjectionMatrix(15, 1, 10, 200);
+    expectedProjectionMat.printProps();
+    projectionMatrix.printProps();
+
+    tester.assert(
+        "createPerspectiveProjectionMatrix.",
+        projectionMatrix.isEqual(expectedProjectionMat),
+        true
+    );
+
+
+    }
+// ----------------------------------------------------------------------
 // Utils ----------------------------------------------------------------
 function test_utils(){
     tester.test = "utils";
@@ -507,5 +583,6 @@ function test_utils(){
 
 // test_vec4();
 // test_mat33();
-test_mat44();
+// test_mat44();
+test_renderer();
 console.log(tester.log);
