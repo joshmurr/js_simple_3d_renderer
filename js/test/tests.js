@@ -511,12 +511,6 @@ function test_renderer(){
     let up = new Vec3(0, 1, 0);
 
     let viewMat = renderer.createViewMatrix(camera, target, up);
-    // console.group("Expected:");
-    // expectedViewMat.printProps();
-    // console.groupEnd();
-    // console.group("Mine:");
-    // viewMat.printProps();
-    // console.groupEnd();
 
     tester.assert(
         "createViewMatrix.",

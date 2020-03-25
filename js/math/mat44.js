@@ -1,4 +1,5 @@
 import * as Utils from './utils.js';
+import Vec3 from './vec3.js';
 import Vec4 from './vec4.js';
 import Mat33 from './mat33.js';
 
@@ -38,6 +39,8 @@ export default class Mat44 extends Mat33{
      *       2  6 10 14
      *       3  6 11 15 ]
      */
+
+
 
     M = [];
 
@@ -200,11 +203,9 @@ export default class Mat44 extends Mat33{
         res.M[14] = this.M[2]*_M.M[12] + this.M[6]*_M.M[13] + this.M[10]*_M.M[14] + this.M[14]*_M.M[15];
         res.M[15] = this.M[3]*_M.M[12] + this.M[7]*_M.M[13] + this.M[11]*_M.M[14] + this.M[15]*_M.M[15];
 
-
-        for(let i=0; i<this.size; i++){
-            this.M[i] = res[i];
-        }
+        this.setMat(res.M);
     }
+
     getMultiplyMat(_M){
         let ret = new Mat44();
 
@@ -236,8 +237,25 @@ export default class Mat44 extends Mat33{
         let ret = new Vec4();
         ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12]*v.w;
         ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13]*v.w;
-        ret.z = this.M[2]*v.x + this.M[7]*v.y + this.M[10]*v.z + this.M[14]*v.w;
+        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14]*v.w;
         ret.w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15]*v.w;
+        return ret;
+    }
+
+    transformVec(v){
+        let ret = new Vec3();
+        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z;
+        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z;
+        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z;
+        return ret;
+    }
+
+    transformPoint(v){
+        let ret = new Vec3();
+        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
+        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
+        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];
+        // ret.w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
         return ret;
     }
 

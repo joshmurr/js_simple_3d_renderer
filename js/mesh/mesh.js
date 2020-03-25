@@ -1,8 +1,9 @@
-default export class Mesh{
+export default class Mesh{
+    verts = [];
+    faces = [];
+
     constructor(){
-        this.verts = [];
-        this.faces = [];
-        console.log("Mesh Created");
+
     }
 
     get verts(){
@@ -10,7 +11,27 @@ default export class Mesh{
     }
 
     get faces(){
-        return this.faces();
+        return this.faces;
     }
 
+    set verts(v){
+        for(let i=0; i<v.length; i++){
+            this.verts[i] = v[i];
+        }
+    }
+
+    set faces(f){
+        for(let i=0; i<f.length; i++){
+            this.faces[i] = f[i];
+        }
+    }
+
+
+    set origin(_M){
+        this.Mat = _M;
+    }
+
+    get origin(){
+        return this.Mat;
+    }
 }

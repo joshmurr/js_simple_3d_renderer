@@ -1,6 +1,7 @@
+import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-default export class Icosahedron extends Mesh{
+export default class Icosahedron extends Mesh{
     constructor(){
         super();
         this.faces = [
@@ -25,20 +26,19 @@ default export class Icosahedron extends Mesh{
             (9, 10, 5),
             (10, 6, 1) ];
         this.verts = [
-            (0.000, 0.000, 1.000),
-            (0.894, 0.000, 0.447),
-            (0.276, 0.851, 0.447),
-            (-0.724, 0.526, 0.447),
-            (-0.724, -0.526, 0.447),
-            (0.276, -0.851, 0.447),
-            (0.724, 0.526, -0.447),
-            (-0.276, 0.851, -0.447),
-            (-0.894, 0.000, -0.447),
-            (-0.276, -0.851, -0.447),
-            (0.724, -0.526, -0.447),
-            (0.000, 0.000, -1.000),
+           new Vec4(0.000, 0.000, 1.000, 1),
+           new Vec4(0.894, 0.000, 0.447, 1),
+           new Vec4(0.276, 0.851, 0.447, 1),
+           new Vec4(-0.724, 0.526, 0.447, 1),
+           new Vec4(-0.724, -0.526, 0.447, 1),
+           new Vec4(0.276, -0.851, 0.447, 1),
+           new Vec4(0.724, 0.526, -0.447, 1),
+           new Vec4(-0.276, 0.851, -0.447, 1),
+           new Vec4(-0.894, 0.000, -0.447, 1),
+           new Vec4(-0.276, -0.851, -0.447, 1),
+           new Vec4(0.724, -0.526, -0.447, 1),
+           new Vec4(0.000, 0.000, -1.000, 1)
         ];
-        console.log("Icosahedron Created");
     }
 }
 
