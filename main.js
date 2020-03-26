@@ -26,9 +26,18 @@ let teapotOrigin = new Mat44();
 teapotOrigin.setIdentity();
 teapot.origin = teapotOrigin;
 
-let camera = new Vec3(-10, 0, 10);
+let camera = new Vec3(0,0,10);
 
 let scene = new Scene(icosahedron, camera);
 
 let renderer = new Renderer(scene);
-renderer.render();
+
+var startTime = new Date();
+function draw(){
+    let time = new Date();
+    let elapsedTime = (time - startTime) / 1000;
+    renderer.render();
+    // requestAnimationFrame(draw);
+}
+
+draw();

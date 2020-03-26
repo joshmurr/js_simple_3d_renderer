@@ -323,6 +323,25 @@ export default class Mat33{
         return this.M[0] + this.M[4] + this.M[8];
     }
 
+    setRotationFromMat33(_M){
+        this.M[0] = _M.M[0];
+        this.M[1] = _M.M[1];
+        this.M[2] = _M.M[2];
+        this.M[3] = 0;
+        this.M[4] = _M.M[3];
+        this.M[5] = _M.M[4];
+        this.M[6] = _M.M[5];
+        this.M[7] = 0;
+        this.M[8] = _M.M[6];
+        this.M[9] = _M.M[7];
+        this.M[10] = _M.M[8];
+        this.M[11] = 0;
+        this.M[12] = 0;
+        this.M[13] = 0;
+        this.M[14] = 0;
+        this.M[15] = 1;
+    }
+
     getAdjoint(){
         let ret = new Mat33();
         ret.M[0] = this.M[4]*this.M[8] - this.M[5]*this.M[7];
@@ -376,6 +395,12 @@ export default class Mat33{
         let ret = new Mat33();
         ret.setMat(this.M);
         return ret;
+    }
+
+    negate(){
+        for(let i=0; i<this.size; i++){
+            this.M[i] = -this.M[i];
+        }
     }
 
 }

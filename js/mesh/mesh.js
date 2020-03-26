@@ -1,4 +1,6 @@
 export default class Mesh{
+    // TODO: createTransformationMatrix : scale -> rotate -> translate
+
     verts = [];
     faces = [];
 
@@ -26,12 +28,15 @@ export default class Mesh{
         }
     }
 
-
     set origin(_M){
         this.Mat = _M;
     }
 
     get origin(){
         return this.Mat;
+    }
+
+    set scale(s){
+        this.s = s;
     }
 }

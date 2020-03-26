@@ -77,6 +77,10 @@ export default class Vec3{
         this.z *= s;
     }
 
+    getMultiply(s){
+        return new Vec3(this.x*s, this.y*s, this.z*s);
+    }
+
     divide(s){
         this.x /= s;
         this.y /= s;

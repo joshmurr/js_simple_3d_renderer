@@ -234,7 +234,33 @@ export default class Mat44 extends Mat33{
 
 
     getMultiplyVec(v){
+        // COLUMN MAJOR - POST MULTIPLICATION
+        //
+        // [  0  4  8 12    [ x
+        //    1  5  9 13  .   y
+        //    2  6 10 14      z
+        //    3  7 11 15 ]    w ]
+
+
         let ret = new Vec4();
+        // let x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z;
+        // let y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z;
+        // let z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z;
+        // let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z;
+//
+        // if(w !== 1){
+            // // Projection
+            // ret.x = x/w;
+            // ret.y = y/w;
+            // ret.z = z/w;
+            // ret.w = 1;
+        // } else {
+            // // Affine
+            // ret.x = x;
+            // ret.y = y;
+            // ret.z = z;
+            // ret.w = 1;
+        // }
         ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12]*v.w;
         ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13]*v.w;
         ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14]*v.w;
@@ -308,7 +334,47 @@ export default class Mat44 extends Mat33{
         return ret;
     }
 
-    getAffineInverse(_M){
+    getAffineInverse(){
+
+        let ret = new Mat44();
+
+        let cofactor0 = this.M[5]*this.M[10] - this.M[6]*this.M[9];
+        let cofactor4 = this.M[2]*this.M[9] - this.M[1]*this.M[10];
+        let cofactor8 = this.M[1]*this.M[6] - this.M[2]*this.M[5];
+        let det = this.M[0]*cofactor0 + this.M[4]*cofactor4 + this.M[8]*cofactor8;
+
+        if(Utils.isZero(det)) {
+            throw new Utils.userException("Singular Matrix: Non-Invertible!");
+        }
+
+        // create adjunct matrix and multiply by 1/det to get upper 3x3
+        let invDet = 1/det;
+        ret.M[0] = invDet*cofactor0;
+        ret.M[1] = invDet*cofactor4;
+        ret.M[2] = invDet*cofactor8;
+
+        ret.M[4] = invDet*(this.M[6]*this.M[8]  - this.M[4]*this.M[10]);
+        ret.M[5] = invDet*(this.M[0]*this.M[10] - this.M[2]*this.M[8]);
+        ret.M[6] = invDet*(this.M[2]*this.M[4]  - this.M[0]*this.M[6]);
+
+        ret.M[8] = invDet*(this.M[4]*this.M[9]  - this.M[5]*this.M[8]);
+        ret.M[9] = invDet*(this.M[1]*this.M[8]  - this.M[0]*this.M[9]);
+        ret.M[10] = invDet*(this.M[0]*this.M[5] - this.M[1]*this.M[4]);
+
+        // multiply -translation by inverted 3x3 to get its inverse
+        ret.M[12] = -ret.M[0]*this.M[12] - ret.M[4]*this.M[13] - ret.M[8]*this.M[14];
+        ret.M[13] = -ret.M[1]*this.M[12] - ret.M[5]*this.M[13] - ret.M[9]*this.M[14];
+        ret.M[14] = -ret.M[2]*this.M[12] - ret.M[6]*this.M[13] - ret.M[10]*this.M[14];
+
+        // bottom row [0, 0, 0, 1]
+        ret.M[3] = ret.M[7] = ret.M[11] = 0;
+        ret.M[15] = 1;
+
+
+        return ret;
+    }
+
+    affineInverseMat44(_M){
 
         let ret = new Mat44();
 
@@ -349,7 +415,7 @@ export default class Mat44 extends Mat33{
     }
 
     affineInverse(){
-        let affInv = this.getAffineInverse(this);
+        let affInv = this.affineInverseMat44(this);
         for(let i=0; i<this.size; i++){
             affInv.M[i] = Utils.round(affInv.M[i]);
         }
@@ -361,5 +427,15 @@ export default class Mat44 extends Mat33{
         ret.setMat(this.M);
         return ret;
     }
+
+    rotateX(theta){
+        this.M[0] = 1;
+        this.M[5] = Math.cos(theta);
+        this.M[6] = Math.sin(theta);
+        this.M[9] = -Math.sin(theta);
+        this.M[10] = Math.cos(theta);
+        this.M[15] = 1;
+    }
+
 
 }
