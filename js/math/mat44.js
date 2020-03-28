@@ -252,24 +252,6 @@ export default class Mat44 extends Mat33{
 
 
         let ret = new Vec3();
-        // let x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z;
-        // let y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z;
-        // let z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z;
-        // let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z;
-//
-        // if(w !== 1){
-            // // Projection
-            // ret.x = x/w;
-            // ret.y = y/w;
-            // ret.z = z/w;
-            // ret.w = 1;
-        // } else {
-            // // Affine
-            // ret.x = x;
-            // ret.y = y;
-            // ret.z = z;
-            // ret.w = 1;
-        // }
         ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
         ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
         ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];

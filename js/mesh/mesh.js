@@ -44,16 +44,19 @@ export default class Mesh{
 
     getModelMatrix(theta){
         let scaleMat = new Mat44();
-        scaleMat.setMat([10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 1]);
+        scaleMat.setMat([50, 0, 0, 0, 0, 50, 0, 0, 0, 0, 50, 0, 0, 0, 0, 1]);
 
         let rotXMat = new Mat44();
-        rotXMat.setMat([1, 0, 0, 0, 0, Math.cos(theta), Math.sin(theta), 0, 0, -Math.sin(theta), Math.cos(theta), 0, 0, 0, 0, 1]);
+        rotXMat.setMat([1, 0, 0, 0, 0, Math.cos(Math.PI), Math.sin(Math.PI), 0, 0, -Math.sin(Math.PI), Math.cos(Math.PI), 0, 0, 0, 0, 1]);
 
         let rotYMat = new Mat44();
         rotYMat.setMat([Math.cos(theta), 0, -Math.sin(theta), 0, 0, 1, 0, 0, Math.sin(theta), 0, Math.cos(theta), 0, 0, 0, 0, 1]);
 
+        let rotZMat = new Mat44();
+        rotZMat.setMat([Math.cos(theta),-Math.sin(theta),0,0, Math.sin(theta),Math.cos(theta),0,0, 0,0,1,0, 0,0,0,1]);
+
         let transMat = new Mat44();
-        transMat.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, Math.sin(theta)*100,Math.cos(theta)*100,((Math.sin(theta)-2)/2)*-100,1]);
+        transMat.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
         let modelMatrix = new Mat44();
         modelMatrix.setIdentity();
@@ -61,6 +64,7 @@ export default class Mesh{
         modelMatrix.multiplyMat(transMat);
         modelMatrix.multiplyMat(rotXMat);
         // modelMatrix.multiplyMat(rotYMat);
+        // modelMatrix.multiplyMat(rotZMat);
         modelMatrix.multiplyMat(scaleMat);
         return modelMatrix;
     }

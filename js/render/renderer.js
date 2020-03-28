@@ -32,9 +32,9 @@ export default class Renderer{
     h = 0;
     counter = 0;
 
-    constructor(scene){
+    constructor(scene, _width, _height){
         this.scene = scene;
-        this.createCanvas();
+        this.createCanvas(_width, _height);
     }
 
     createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
@@ -47,68 +47,28 @@ export default class Renderer{
          *               0  0  -1      0     ]
          *
          */
-
-        // let xymax = _near * Math.tan(_FOV * Math.PI/360);
-        // let ymin = -xymax;
-        // let xmin = -xymax;
-//
-        // let width = xymax - xmin;
-        // let height = xymax - ymin;
-//
-        // let depth = _far - _near;
-        // let q = -(_far + _near) / depth;
-        // let qn = -2 * (_far * _near) / depth;
-//
-        // let w = 2 * _near / width;
-        // w = w / _aspect;
-        // let h = 2 * _near / height;
-
-        // -------------------------
         
         let d = 1 / Math.tan((_FOV/2) * (Math.PI/180));
         let a = _aspect;
-        
+            
 
-    let projMat = new Mat44();
-    projMat.M[0]  = d/a;
-    projMat.M[1]  = 0;
-    projMat.M[2]  = 0;
-    projMat.M[3] = 0;
-    projMat.M[4]  = 0;
-    projMat.M[5]  = d;
-    projMat.M[6]  = 0;
-    projMat.M[7] = 0;
-    projMat.M[8]  = 0;
-    projMat.M[9]  = 0;
-    projMat.M[10] = -_far / (_far - _near);
-    projMat.M[11] = 2*_near*_far / (_far - _near);
-    projMat.M[12]  = 0;
-    projMat.M[13]  = 0;
-    projMat.M[14] = -1;
-    projMat.M[15] = 0;
-        // projMat.M[10] = _far/(_far-_near);
-        // projMat.M[11] = 1;
-        // projMat.M[12]  = 0;
-        // projMat.M[13]  = 0;
-        // projMat.M[14] = -((_near*_far)/(_far-_near));
-        // projMat.M[15] = 0;
-
-        // projMat.M[0]  = w;
-        // projMat.M[1]  = 0;
-        // projMat.M[2]  = 0;
-        // projMat.M[3] = 0;
-        // projMat.M[4]  = 0;
-        // projMat.M[5]  = h;
-        // projMat.M[6]  = 0;
-        // projMat.M[7] = 0;
-        // projMat.M[8]  = 0;
-        // projMat.M[9]  = 0;
-        // projMat.M[10] = q;
-        // projMat.M[11] = 1;
-        // projMat.M[12]  = 0;
-        // projMat.M[13]  = 0;
-        // projMat.M[14] = qn;
-        // projMat.M[15] = 0;
+        let projMat = new Mat44();
+        projMat.M[0]  = d/a;
+        projMat.M[1]  = 0;
+        projMat.M[2]  = 0;
+        projMat.M[3] = 0;
+        projMat.M[4]  = 0;
+        projMat.M[5]  = d;
+        projMat.M[6]  = 0;
+        projMat.M[7] = 0;
+        projMat.M[8]  = 0;
+        projMat.M[9]  = 0;
+        projMat.M[10] = _far / (_far - _near);
+        projMat.M[11] = -2*_near*_far / (_far - _near);
+        projMat.M[12]  = 0;
+        projMat.M[13]  = 0;
+        projMat.M[14] = -1;
+        projMat.M[15] = 0;
 
         return projMat;
     }
@@ -130,22 +90,6 @@ export default class Renderer{
         side.normalize();
         let up = side.cross(forward); // Vec3
         up.normalize();
-
-        // let viewDir = _target.getSubtract(_camera);
-        // viewDir.normalize();
-//
-        // let viewUpTMP = viewDir.getMultiply(_up.dot(viewDir));
-        // let viewUp = _up.getSubtract(viewUpTMP);
-//
-        // let viewSide = viewDir.cross(viewUp);
-//
-        // let rotate = new Mat33();
-        // viewDir.negate();
-        // rotate.setRows(viewSide, viewUp, viewDir);
-//
-        // let eyeInv = rotate.getMultiplyVec(_camera);
-        // eyeInv.negate();
-//
         let viewMat = new Mat44();
         // viewMat.setRotationFromMat33(rotate);
         // viewMat.setIJ(0,3, eyeInv.x);
@@ -158,18 +102,18 @@ export default class Renderer{
         // -forward.x, -forward.y, -forward.z, forward.dot(_camera),
         // 0,          0,          0,          1
         // ]);
-        // viewMat.setMat([
-            // side.x,     up.x,       forward.x, 0,
-            // side.y,     up.y,       forward.y, 0,
-            // side.z,     up.z,       forward.z, 0,
-            // -side.dot(_camera), -up.dot(_camera), forward.dot(_camera), 1
-        // ]);
         viewMat.setMat([
-            side.x,             side.y,           side.z,               0,
-            up.x,               up.y,             up.z,                 0,
-            forward.x,         forward.y,       forward.z,           0,
-            _camera.x, _camera.y, _camera. z, 1
+            side.x,     up.x,       forward.x, 0,
+            side.y,     up.y,       forward.y, 0,
+            side.z,     up.z,       forward.z, 0,
+            -side.dot(_camera), -up.dot(_camera), forward.dot(_camera), 1
         ]);
+        // viewMat.setMat([
+            // side.x,             side.y,           side.z,               0,
+            // up.x,               up.y,             up.z,                 0,
+            // forward.x,         forward.y,       forward.z,           0,
+            // _camera.x, _camera.y, _camera. z, 1
+        // ]);
 
         return viewMat;
     }
@@ -236,40 +180,48 @@ export default class Renderer{
     }
 
     render(){
-        let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 1, 100);
-        // let viewMat = this.createViewMatrix(new Vec3(0, 0, 10), new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+        let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 1, 50);
+        let viewMat = this.createViewMatrix(new Vec3(Math.sin(this.counter)*50,80,80), new Vec3(0, 0, 0), new Vec3(0, 1, 0));
         // let projectionMat = this.createSimpleProjectionMatrix(0.5);
         let MVP = new Mat44();
         MVP.setIdentity();
         MVP.multiplyMat(projectionMat);
+        MVP.multiplyMat(viewMat);
         MVP.multiplyMat(this.scene.mesh.getModelMatrix(this.counter));
         // MVP.multiplyMat(viewMat);
 
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        for(let i=0; i<this.scene.mesh.verts.length; i++){
+        let loopLen = this.scene.mesh.verts.length;
+        // let loopLen = 10;
+
+        for(let i=0; i<loopLen; i++){
             let v= this.scene.mesh.verts[i].getCopy();
-            let p = MVP.getMultiplyVecW(v);
+            let p = MVP.getMultiplyVec(v);
+            let z = p.w;
+            // console.log(z);
+            p.NDC();
+            // p.printProps();
 
             let xScreen = ((p.x + 1)*0.5) * this.width;
             let yScreen = (1-(p.y + 1)*0.5) * this.height;
 
             if(i<this.scene.mesh.verts.length/2) this.ctx.fillStyle="black";
             else this.ctx.fillStyle="red";
-            this.ctx.fillRect(xScreen, yScreen, 2, 2);
+            this.ctx.fillRect(xScreen, yScreen, 128/(z),128/(z));
         }
         MVP.setIdentity();
         this.counter+=0.01;
     }
 
-    createCanvas(){
+    createCanvas(_width=window.innerWidth, _height=window.innerHeight){
         if(document.getElementsByName("canvas").length == 1){
             console.log("Canvas found");
         } else {
             let canvas = document.createElement("canvas");
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
+            this.width = _width;
+            this.height = _height;
             canvas.width = this.width;
             canvas.height = this.height;
 

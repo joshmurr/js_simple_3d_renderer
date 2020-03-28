@@ -140,6 +140,13 @@ export default class Vec4 extends Vec3{
         return new Vec4(this.x, this.y, this.z, this.w);
     }
 
+    NDC(){
+        this.x /= this.w;
+        this.y /= this.w;
+        this.z /= this.w;
+        this.w = 1;
+    }
+
 /*
  *     dot(v){
  *         return this.x*v.x + this.y*v.y + this.z*v.z + this.w*v.w;

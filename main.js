@@ -35,7 +35,7 @@ let camera = new Vec3(0,0,10);
 
 let scene = new Scene(teapot, camera);
 
-let renderer = new Renderer(scene);
+let renderer = new Renderer(scene, 512, 512);
 
 var startTime = new Date();
 function draw(){
