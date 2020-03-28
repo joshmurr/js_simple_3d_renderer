@@ -167,7 +167,7 @@ export default class Renderer{
         return projMat;
     }
 
-    render(_time){
+    render(_style){
         let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 10);
         let viewMat = this.createViewMatrix(this.scene.camera);
 
@@ -182,25 +182,56 @@ export default class Renderer{
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        let loopLen = mesh.verts.length;
+        // POINTS ---------------------------------------------------------
+        if(_style == "points"){
+            let loopLen = mesh.verts.length;
 
-        for(let i=0; i<loopLen; i++){
-            let v = mesh.verts[i].getCopy();
-            let p = MVP.getMultiplyVec(v);
-            let z = p.w;
-            p.NDC();
+            for(let i=0; i<loopLen; i++){
+                let v = mesh.verts[i].getCopy();
+                let p = MVP.getMultiplyVec(v);
+                let z = p.w;
+                p.NDC();
 
-            if(z > 0){
-                let xScreen = ((p.x + 1)*0.5) * this.width;
-                let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                this.ctx.beginPath();
-                this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
-                this.ctx.closePath();
-                this.ctx.fill();
-                // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
+                if(z > 0){
+                    let xScreen = ((p.x + 1)*0.5) * this.width;
+                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                    this.ctx.beginPath();
+                    this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
+                }
             }
         }
+        // WIREFRAME ------------------------------------------------------
+        else if(_style == "wireframe"){
+            let loopLen = mesh.faces.length-42;
+
+            for(let i=0; i<loopLen; i+=3){
+                this.ctx.beginPath();
+                for(let j=0; j<3; j++){
+                    let face = mesh.faces[i+j];
+                    let v = mesh.verts[face[0]].getCopy();
+                    let p = MVP.getMultiplyVec(v);
+                    let z = p.w;
+                    p.NDC();
+
+                    if(z > 0){
+                        let xScreen = ((p.x + 1)*0.5) * this.width;
+                        let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                        this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                        this.ctx.lineWidth = 8/z;
+                        this.ctx.lineTo(xScreen, yScreen);
+                        // this.ctx.fill();
+                    }
+                }
+                this.ctx.closePath();
+                this.ctx.stroke();
+            }
+
+        }
+        // ----------------------------------------------------------------
         if(this.guiValues["reset"]){
             for(let guiElem in this.guiValues){
                 let ele = document.getElementById(guiElem);
