@@ -1,6 +1,7 @@
 export default class Scene {
-    constructor(mesh, camera){
-        this.mesh = mesh;
-        this.camera = camera;
+    constructor(_mesh, _camera, _idList){
+        this.mesh = _mesh;
+        this.camera = _camera;
+        this.idList = _idList;
     }
 }

@@ -1,4 +1,5 @@
 import * as Utils from './js/math/utils.js';
+import GUI from './js/gui/gui.js';
 import Vec3 from './js/math/vec3.js';
 import Vec4 from './js/math/vec4.js';
 import Mat33 from './js/math/mat33.js';
@@ -11,38 +12,36 @@ import Teapot from './js/mesh/teapot.js';
 
 
 let octahedron = new Octahedon();
-let octahedronOrigin = new Mat44();
-octahedronOrigin.setIdentity();
-octahedron.origin = octahedronOrigin;
-
-
 let icosahedron = new Icosahedron();
-let icosahedronOrigin = new Mat44();
-console.log(icosahedron.verts);
-// for(let i=0; i<icosahedron.verts.length/2; i++){
-    // icosahedron.verts[i].x *= -1;
-    // icosahedron.verts[i].z *= -2;
-// }
-icosahedronOrigin.setIdentity();
-icosahedron.origin = icosahedronOrigin;
-
 let teapot = new Teapot();
-let teapotOrigin = new Mat44();
-teapotOrigin.setIdentity();
-teapot.origin = teapotOrigin;
 
-let camera = new Vec3(0,0,10);
+let gui = new GUI();
+gui.menu();
+gui.title("3D Engine");
+gui.title("Translation");
+gui.slider("xTrans",-10,10, 0);
+gui.slider("yTrans",-10,10, 0);
+gui.slider("zTrans",-10,10, 0);
+gui.title("Rotation");
+gui.slider("xRot",-Math.PI, Math.PI, 0);
+gui.slider("yRot",-Math.PI, Math.PI, 0);
+gui.slider("zRot",-Math.PI, Math.PI, 0);
+gui.title("Scale");
+gui.slider("xScale",-10, 10, 1);
+gui.slider("yScale",-10, 10, 1);
+gui.slider("zScale",-10, 10, 1);
+// gui.button("Button");
 
-let scene = new Scene(teapot, camera);
+let camera = new Vec3(0,-50,-100);
+let scene = new Scene(teapot, camera, gui.getIdList());
 
 let renderer = new Renderer(scene, 512, 512);
 
-var startTime = new Date();
 function draw(){
     let time = new Date();
-    let elapsedTime = (time - startTime) / 1000;
-    renderer.render();
+    renderer.render(time*0.001);
     requestAnimationFrame(draw);
 }
+
 
 draw();

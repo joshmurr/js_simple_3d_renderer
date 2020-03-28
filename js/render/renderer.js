@@ -31,11 +31,15 @@ export default class Renderer{
     w = 0;
     h = 0;
     counter = 0;
+    guiValues = {};
 
     constructor(scene, _width, _height){
+        // this.guiValues = {};
         this.scene = scene;
+        this.findGUIElements(scene.idList);
         this.createCanvas(_width, _height);
     }
+
 
     createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
         /*
@@ -64,7 +68,7 @@ export default class Renderer{
         projMat.M[8]  = 0;
         projMat.M[9]  = 0;
         projMat.M[10] = _far / (_far - _near);
-        projMat.M[11] = -2*_near*_far / (_far - _near);
+        projMat.M[11] = -_near*_far / (_far - _near);
         projMat.M[12]  = 0;
         projMat.M[13]  = 0;
         projMat.M[14] = -1;
@@ -73,7 +77,7 @@ export default class Renderer{
         return projMat;
     }
 
-    createViewMatrix(_camera, _target, _up){
+    createViewMatrix(_camera, _target=new Vec3(0,0,0), _up=new Vec3(0,1,0)){
         /*
          * All args : Vec3
          *
@@ -91,29 +95,12 @@ export default class Renderer{
         let up = side.cross(forward); // Vec3
         up.normalize();
         let viewMat = new Mat44();
-        // viewMat.setRotationFromMat33(rotate);
-        // viewMat.setIJ(0,3, eyeInv.x);
-        // viewMat.setIJ(1,3, eyeInv.y);
-        // viewMat.setIJ(2,3, eyeInv.z);
-
-        // viewMat.setMat([
-        // side.x,     side.y,     side.z,     -side.dot(_camera),
-        // up.x,       up.y,       up.z,       -up.dot(_camera),
-        // -forward.x, -forward.y, -forward.z, forward.dot(_camera),
-        // 0,          0,          0,          1
-        // ]);
         viewMat.setMat([
             side.x,     up.x,       forward.x, 0,
             side.y,     up.y,       forward.y, 0,
             side.z,     up.z,       forward.z, 0,
             -side.dot(_camera), -up.dot(_camera), forward.dot(_camera), 1
         ]);
-        // viewMat.setMat([
-            // side.x,             side.y,           side.z,               0,
-            // up.x,               up.y,             up.z,                 0,
-            // forward.x,         forward.y,       forward.z,           0,
-            // _camera.x, _camera.y, _camera. z, 1
-        // ]);
 
         return viewMat;
     }
@@ -179,39 +166,40 @@ export default class Renderer{
         return projMat;
     }
 
-    render(){
-        let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 1, 50);
-        let viewMat = this.createViewMatrix(new Vec3(Math.sin(this.counter)*50,80,80), new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-        // let projectionMat = this.createSimpleProjectionMatrix(0.5);
+    render(_time){
+        let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 10);
+        let viewMat = this.createViewMatrix(this.scene.camera);
+
         let MVP = new Mat44();
         MVP.setIdentity();
         MVP.multiplyMat(projectionMat);
         MVP.multiplyMat(viewMat);
-        MVP.multiplyMat(this.scene.mesh.getModelMatrix(this.counter));
-        // MVP.multiplyMat(viewMat);
+        MVP.multiplyMat(this.scene.mesh.getModelMatrix(this.guiValues));
 
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
         let loopLen = this.scene.mesh.verts.length;
-        // let loopLen = 10;
 
         for(let i=0; i<loopLen; i++){
-            let v= this.scene.mesh.verts[i].getCopy();
+            let v = this.scene.mesh.verts[i].getCopy();
             let p = MVP.getMultiplyVec(v);
             let z = p.w;
-            // console.log(z);
             p.NDC();
-            // p.printProps();
 
-            let xScreen = ((p.x + 1)*0.5) * this.width;
-            let yScreen = (1-(p.y + 1)*0.5) * this.height;
-
-            if(i<this.scene.mesh.verts.length/2) this.ctx.fillStyle="black";
-            else this.ctx.fillStyle="red";
-            this.ctx.fillRect(xScreen, yScreen, 128/(z),128/(z));
+            if(z > 0){
+                let xScreen = ((p.x + 1)*0.5) * this.width;
+                let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                this.ctx.beginPath();
+                this.ctx.arc(xScreen, yScreen, 8/z, 0, Math.PI*2);
+                this.ctx.closePath();
+                this.ctx.fill();
+                // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
+            }
         }
         MVP.setIdentity();
+        this.updateGUIValues();
         this.counter+=0.01;
     }
 
@@ -219,12 +207,12 @@ export default class Renderer{
         if(document.getElementsByName("canvas").length == 1){
             console.log("Canvas found");
         } else {
+
             let canvas = document.createElement("canvas");
             this.width = _width;
             this.height = _height;
             canvas.width = this.width;
             canvas.height = this.height;
-
             let body = document.getElementsByTagName("body")[0];
             body.appendChild(canvas);
 
@@ -242,4 +230,22 @@ export default class Renderer{
             this.ctx.fillRect(0, 0, 5, 5);
         }
     }
+
+    findGUIElements(_idList){
+        for(let i=0; i<_idList.length; i++){
+            let ele = document.getElementById(_idList[i]);
+            this.guiValues[_idList[i]] = parseFloat(ele.value);
+        }
+        console.log(this.guiValues);
+    }
+
+    updateGUIValues(){
+        for(let guiElem in this.guiValues){
+            if(this.guiValues.hasOwnProperty(guiElem)){
+                let ele = document.getElementById(guiElem);
+                this.guiValues[guiElem] = parseFloat(ele.value);
+            }
+        }
+    }
+
 }
