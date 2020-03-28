@@ -229,17 +229,9 @@ export default class Renderer{
 
     render(){
         let viewMat = this.createViewMatrix(this.scene.camera, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-        // let viewMat = new Mat44();
-        // viewMat.setIJ(1,3,-10);
-        // viewMat.setIJ(2,3,-20);
-        // viewMat.transpose();
-        // viewMat.printProps();
 
         let rotationMat = new Mat44();
         rotationMat.rotateX(1);
-
-        // viewMat.printProps();
-        // viewMat = viewMat.getAffineInverse(viewMat);
         let projectionMat = this.createPerspectiveProjectionMatrix(120, this.width/this.height, 1, 100);
         // let screenMat = this.createScreenMatrix();
 

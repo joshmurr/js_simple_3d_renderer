@@ -77,7 +77,8 @@ export default class Mat33{
         try{
             Utils.checkSize(_i, this.numRows);
             Utils.checkSize(_j, this.numCols);
-            this.M[_i+this.numCols*_j] = val;
+            let set =_i+this.numCols*_j; 
+            this.M[set] = val;
         } catch(e){
             console.warn(e.message);
         }

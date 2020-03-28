@@ -5,8 +5,6 @@ var width = 512;
 var height = 512;
 
 var canvas = document.createElement("canvas");
-// this.width = window.innerWidth;
-// this.height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
@@ -53,7 +51,7 @@ function createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
 
     return projMat;
 }
-let theta = 1;
+let theta = 10;
 let transform = new Mat44();
 transform.M[0] = 1;
 transform.M[5] = Math.cos(theta);
@@ -63,28 +61,35 @@ transform.M[10] = Math.cos(theta);
 transform.M[15] = 1;
 
 let transform2 = new Mat44();
-transform2.M[0] = Math.cos(theta);
-transform2.M[2] = -Math.sin(theta);
+transform2.M[0] = Math.cos(theta*0.2);
+transform2.M[2] = -Math.sin(theta*0.2);
 transform2.M[5] = 1;
-transform2.M[8] = Math.sin(theta);
-transform2.M[10] = Math.cos(theta);
+transform2.M[8] = Math.sin(theta*0.2);
+transform2.M[10] = Math.cos(theta*0.2);
 transform2.M[15] = 1;
 
+let transform3 = new Mat44();
+transform3.M[0] = Math.cos(theta*0.4);
+transform3.M[1] = Math.sin(theta*0.4);
+transform3.M[4] = -Math.sin(theta*0.4);
+transform3.M[5] = Math.cos(theta*0.4);
+transform3.M[10] = 1;
+transform3.M[15] = 1;
+
 // Manip Points
-    for(let i=0; i<points.length; i++){
-
-        let tmp = points[i].getCopy();
-        tmp.x*=30;
-        tmp.y*=50;
-        points[i] = tmp;
-
-    }
+for(let i=0; i<points.length; i++){
+    // Scale
+    let tmp = points[i].getCopy();
+    tmp.multiply(50);
+    points[i] = tmp;
+}
 function updatePoints(){
+    // Rotation
     for(let i=0; i<points.length; i++){
-
         let tmp = points[i].getCopy();
-        tmp = transform.getMultiplyVec(tmp);
-        tmp = transform2.getMultiplyVec(tmp);
+    tmp = transform.getMultiplyVec(tmp);
+    tmp = transform2.getMultiplyVec(tmp);
+    tmp = transform3.getMultiplyVec(tmp);
         points[i] = tmp;
 
     }
@@ -95,20 +100,10 @@ perspMatrix.printProps();
 
 
 function draw(){
-
     let identity = new Mat44();
     identity.setIdentity();
-    // console.log(points);
-    // transform.printProps();
 
     let localToWorld = identity.getCopy();
-    // worldTransformPoint.printProps();
-
-    let transformInverse = identity.getAffineInverse();
-    // transform.printProps();
-
-    // let localTransformPoint = transformInverse.getMultiplyVec(localToWorldPoint);
-    // localTransformPoint.printProps();
 
     let cameraToWorld = identity.getCopy();
     let worldToCamera = cameraToWorld.getAffineInverse();

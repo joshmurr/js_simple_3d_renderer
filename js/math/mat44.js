@@ -261,10 +261,36 @@ export default class Mat44 extends Mat33{
             // ret.z = z;
             // ret.w = 1;
         // }
-        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12]*v.w;
-        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13]*v.w;
-        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14]*v.w;
-        ret.w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15]*v.w;
+        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
+        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
+        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];
+        let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
+
+        // console.group("V before W divide:");
+        // console.log(ret.x);
+        // console.log(ret.y);
+        // console.log(ret.z);
+        // console.log(w);
+        // console.groupEnd();
+        //
+
+        ret.w = w;
+
+        // ret.printProps();
+        if(!Utils.areEqual(w, 1)){
+            ret.x /= w;
+            ret.y /= w;
+            ret.z /= w;
+            ret.w = 1;
+        }
+
+        // console.group("V AFTER W divide:");
+        // console.log(ret.x);
+        // console.log(ret.y);
+        // console.log(ret.z);
+        // console.log(ret.w);
+        // console.groupEnd();
+
         return ret;
     }
 
@@ -384,7 +410,6 @@ export default class Mat44 extends Mat33{
         let det = _M.M[0]*cofactor0 + _M.M[4]*cofactor4 + _M.M[8]*cofactor8;
 
         if(Utils.isZero(det)) {
-            throw new Utils.userException("Singular Matrix: Non-Invertible!");
         }
 
         // create adjunct matrix and multiply by 1/det to get upper 3x3
@@ -407,7 +432,9 @@ export default class Mat44 extends Mat33{
         ret.M[14] = -ret.M[2]*_M.M[12] - ret.M[6]*_M.M[13] - ret.M[10]*_M.M[14];
 
         // bottom row [0, 0, 0, 1]
-        ret.M[3] = ret.M[7] = ret.M[11] = 0;
+        ret.M[3] = 0;
+        ret.M[7] = 0;
+        ret.M[11] = 0;
         ret.M[15] = 1;
 
 

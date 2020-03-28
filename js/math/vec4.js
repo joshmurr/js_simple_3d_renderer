@@ -132,6 +132,9 @@ export default class Vec4 extends Vec3{
     getNDC(){
         return new Vec4(this.x/-this.z, this.y/-this.z, this.z/-this.z, this.w/-this.z);
     }
+    getNDCw(){
+        return new Vec4(this.x/this.w, this.y/this.w, this.z/this.w, this.w/this.w);
+    }
 
     getCopy(){
         return new Vec4(this.x, this.y, this.z, this.w);
