@@ -40,6 +40,7 @@ export default class GUI {
         slider.min = _min;
         slider.max = _max;
         slider.value = _val;
+        slider.step = 0.1;
         this.menuContainer.appendChild(slider);
     }
 

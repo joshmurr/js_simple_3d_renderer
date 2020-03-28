@@ -192,7 +192,7 @@ export default class Renderer{
                 let yScreen = (1-(p.y + 1)*0.5) * this.height;
                 this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                 this.ctx.beginPath();
-                this.ctx.arc(xScreen, yScreen, 8/z, 0, Math.PI*2);
+                this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
                 this.ctx.closePath();
                 this.ctx.fill();
                 // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));

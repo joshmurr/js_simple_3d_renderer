@@ -15,6 +15,10 @@ let octahedron = new Octahedon();
 let icosahedron = new Icosahedron();
 let teapot = new Teapot();
 
+for(let i=0; i<teapot.verts.length; i++){
+    teapot.verts[i].y *= -1;
+}
+
 let gui = new GUI();
 gui.menu();
 gui.title("3D Engine");
@@ -30,16 +34,16 @@ gui.title("Scale");
 gui.slider("xScale",-10, 10, 1);
 gui.slider("yScale",-10, 10, 1);
 gui.slider("zScale",-10, 10, 1);
-// gui.button("Button");
+gui.button("Reset");
 
 let camera = new Vec3(0,-50,-100);
 let scene = new Scene(teapot, camera, gui.getIdList());
 
-let renderer = new Renderer(scene, 512, 512);
+let renderer = new Renderer(scene);
 
 function draw(){
-    let time = new Date();
-    renderer.render(time*0.001);
+    // let time = new Date();
+    renderer.render();
     requestAnimationFrame(draw);
 }
 
