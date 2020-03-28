@@ -171,4 +171,7 @@ export default class Vec3{
         return new Vec3( this.y*v.z - this.z*v.y, this.z*v.x - this.x*v.z, this.x*v.y - this.y*v.x );
     }
 
+    getCopy(){
+        return new Vec3(this.x, this.y, this.z);
+    }
 }

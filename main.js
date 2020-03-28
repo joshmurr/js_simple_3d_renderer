@@ -18,6 +18,11 @@ octahedron.origin = octahedronOrigin;
 
 let icosahedron = new Icosahedron();
 let icosahedronOrigin = new Mat44();
+console.log(icosahedron.verts);
+// for(let i=0; i<icosahedron.verts.length/2; i++){
+    // icosahedron.verts[i].x *= -1;
+    // icosahedron.verts[i].z *= -2;
+// }
 icosahedronOrigin.setIdentity();
 icosahedron.origin = icosahedronOrigin;
 
@@ -28,7 +33,7 @@ teapot.origin = teapotOrigin;
 
 let camera = new Vec3(0,0,10);
 
-let scene = new Scene(icosahedron, camera);
+let scene = new Scene(teapot, camera);
 
 let renderer = new Renderer(scene);
 
@@ -37,7 +42,7 @@ function draw(){
     let time = new Date();
     let elapsedTime = (time - startTime) / 1000;
     renderer.render();
-    // requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
 }
 
 draw();

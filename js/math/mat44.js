@@ -234,6 +234,15 @@ export default class Mat44 extends Mat33{
 
 
     getMultiplyVec(v){
+        let ret = new Vec4();
+        ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
+        ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
+        ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];
+        ret.w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
+        return ret;
+    }
+
+    getMultiplyVecW(v){
         // COLUMN MAJOR - POST MULTIPLICATION
         //
         // [  0  4  8 12    [ x
@@ -242,7 +251,7 @@ export default class Mat44 extends Mat33{
         //    3  7 11 15 ]    w ]
 
 
-        let ret = new Vec4();
+        let ret = new Vec3();
         // let x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z;
         // let y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z;
         // let z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z;
@@ -267,21 +276,21 @@ export default class Mat44 extends Mat33{
         let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
 
         // console.group("V before W divide:");
-        // console.log(ret.x);
-        // console.log(ret.y);
-        // console.log(ret.z);
-        // console.log(w);
+        // console.log(v.x);
+        // console.log(v.y);
+        // console.log(v.z);
+        // console.log(v.w);
         // console.groupEnd();
         //
 
-        ret.w = w;
+        // ret.w = w;
 
         // ret.printProps();
         if(!Utils.areEqual(w, 1)){
             ret.x /= w;
             ret.y /= w;
             ret.z /= w;
-            ret.w = 1;
+            // ret.w = 1;
         }
 
         // console.group("V AFTER W divide:");

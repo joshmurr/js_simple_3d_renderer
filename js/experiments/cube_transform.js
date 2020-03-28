@@ -46,7 +46,7 @@ var points2 = [
 
 let theta = 0;
 function draw(){
-    let transform = new Mat44();
+    let rotate = new Mat44();
     // STORED AS COLUMN MAJOR
     // transform.M[ 0] =  0.718762;
     // transform.M[ 4] =  0.615033;
@@ -65,38 +65,34 @@ function draw(){
     // transform.M[11] = -2.532150;
     // transform.M[15] =  1;
 
-    transform.M[0] = 1;
-    transform.M[5] = Math.cos(theta);
-    transform.M[6] = Math.sin(theta);
-    transform.M[9] = -Math.sin(theta);
-    transform.M[10] = Math.cos(theta);
-    transform.M[15] = 1;
+    rotate.M[0] = 1;
+    rotate.M[5] = Math.cos(theta);
+    rotate.M[6] = Math.sin(theta);
+    rotate.M[9] = -Math.sin(theta);
+    rotate.M[10] = Math.cos(theta);
+    rotate.M[15] = 1;
 
-    let identity = new Mat44();
-    identity.setIdentity();
-    // console.log(points);
-    // transform.printProps();
+    let translate = new Mat44();
+    translate.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
-    let localToWorld = identity.getCopy();
-    // worldTransformPoint.printProps();
+    let transform = new Mat44();
+    transform.setIdentity();
 
-    let transformInverse = identity.getAffineInverse();
-    // transform.printProps();
 
-    // let localTransformPoint = transformInverse.getMultiplyVec(localToWorldPoint);
-    // localTransformPoint.printProps();
+    let localToWorld = transform.getCopy();
 
-    let cameraToWorld = identity.getCopy();
-    let worldToCamera = cameraToWorld.getAffineInverse();
+    // let transformInverse = identity.getAffineInverse();
+
     for(let i=0; i<points2.length; i++){
         // points[i].z -= 2;
         // points[i].printProps();
-        points2[i] = transform.getMultiplyVec(points2[i]);
-        let localToWorldPoint = localToWorld.getMultiplyVec(points2[i]);
+        let p = transform.getMultiplyVecW(points2[i]);
+        // let localToWorldPoint = localToWorld.getMultiplyVec(points2[i]);
         // localToWorldPoint.printProps();
-        let worldToCameraPoint = cameraToWorld.getMultiplyVec(localToWorldPoint);
-        let cameraToScreenPoint = worldToCameraPoint.getNDC();
-        cameraToScreenPoint.multiply(100);
+        // let worldToCameraPoint = cameraToWorld.getMultiplyVec(localToWorldPoint);
+        let cameraToScreenPoint = p.getCopy();
+        // cameraToScreenPoint.multiply(100);
+        // cameraToScreenPoint.printProps();
 
         let xNorm = (cameraToScreenPoint.x + (width/2)) / width;
         let yNorm = (cameraToScreenPoint.y + (height/2)) / height;
@@ -108,7 +104,7 @@ function draw(){
         ctx.fillRect(xScreen, yScreen, 2, 2);
     }
     theta += 0.01;
-    requestAnimationFrame(draw);
+    // requestAnimationFrame(draw);
 }
 
 draw();

@@ -34,7 +34,7 @@ var points = [
 
 function createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
     let d = 1 / Math.tan((_FOV/2) * (Math.PI/180)); // Deg to Rad
-    let rangeInv = 1 / (_far - _near);
+    // let rangeInv = 1 / (_far - _near);
     let a = _aspect;
     // let r = _aspect * d;
     // let l = -r;
@@ -52,11 +52,11 @@ function createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
     projMat.M[7] = 0;
     projMat.M[8]  = 0;
     projMat.M[9]  = 0;
-    projMat.M[10] = (-_near - _far) *rangeInv;
-    projMat.M[11] = -1;
+    projMat.M[10] = -_far / (_far - _near);
+    projMat.M[11] = 2*_near*_far / (_far - _near);
     projMat.M[12]  = 0;
     projMat.M[13]  = 0;
-    projMat.M[14] = _near*_far*rangeInv*2;
+    projMat.M[14] = -1;
     projMat.M[15] = 0;
     // OGL
     // projMat.M[0]  = (2*_near)/(r-l);
@@ -90,7 +90,7 @@ function createSimpleProjectionMatrix(_scaleFactor){
 
 function createModelMat(_theta){
     let scaleMat = new Mat44();
-    scaleMat.setMat([50, 0, 0, 0, 0, 50, 0, 0, 0, 0, 50, 0, 0, 0, 0, 1]);
+    scaleMat.setMat([10,0,0,0, 0,10,0,0, 0,0,10,0, 0,0,0,1]);
 
     let rotXMat = new Mat44();
     rotXMat.setMat([1, 0, 0, 0, 0, Math.cos(theta), Math.sin(theta), 0, 0, -Math.sin(theta), Math.cos(theta), 0, 0, 0, 0, 1]);
@@ -99,17 +99,20 @@ function createModelMat(_theta){
     rotYMat.setMat([Math.cos(theta), 0, -Math.sin(theta), 0, 0, 1, 0, 0, Math.sin(theta), 0, Math.cos(theta), 0, 0, 0, 0, 1]);
 
     let transMat = new Mat44();
-    transMat.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,50,0,1]);
+    transMat.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-100,1]);
 
     let modelMatrix = new Mat44();
     modelMatrix.setIdentity();
 
     modelMatrix.multiplyMat(transMat);
     modelMatrix.multiplyMat(rotXMat);
-    modelMatrix.multiplyMat(rotYMat);
+    // modelMatrix.multiplyMat(rotYMat);
     modelMatrix.multiplyMat(scaleMat);
     return modelMatrix;
 }
+
+let wTc = new Mat44();
+wTc.setMat([1,0,0,0, 0,1,0,10, 0,0,1,20, 0,0,0,1]);
 
 let model = new Icosahedron();
 
@@ -118,8 +121,8 @@ modelMatrix = createModelMat(theta);
 console.warn("Model Mat:");
 modelMatrix.printProps();
 
-// let perspMatrix = createPerspectiveProjectionMatrix(90, width/height, 1, 100);
-let perspMatrix = createSimpleProjectionMatrix(0.5);
+let perspMatrix = createPerspectiveProjectionMatrix(90, width/height, 1, 100);
+// let perspMatrix = createSimpleProjectionMatrix(0.5);
 console.warn("Perspecitve Mat:");
 perspMatrix.printProps();
 
@@ -131,8 +134,10 @@ function draw(){
     ctx.fillRect(0, 0, width, height);
 
     modelMatrix = createModelMat(theta);
-    MVP.multiplyMat(modelMatrix);
+    // MVP.multiplyMat(modelMatrix);
     MVP.multiplyMat(perspMatrix);
+    // MVP.multiplyMat(wTc);
+    MVP.multiplyMat(modelMatrix);
     // MVP.affineInverse();
     // console.warn("MVP:");
     // MVP.printProps();
@@ -149,7 +154,8 @@ function draw(){
         // p.z -= 2;
         // p.x -= 2;
         // p.printProps();
-        p = MVP.getMultiplyVec(p);
+        // p = wTc.getMultiplyVecW(p);
+        p = MVP.getMultiplyVecW(p);
         // console.log("After");
         // p.printProps();
         // console.groupEnd();
@@ -161,16 +167,17 @@ function draw(){
         // cameraToScreenPoint.printProps();
         // if(cameraToScreenPoint.x > -1 && cameraToScreenPoint.x < 1 &&
         // cameraToScreenPoint.y > -1 && cameraToScreenPoint.y < 1){
-        let xNorm = (p.x + (width/2)) / width;
-        let yNorm = (p.y + (height/2)) / height;
-        let xScreen = xNorm * width;
-        let yScreen = yNorm * height;
+        let xNorm = ((p.x + 1)*0.5) * width;
+        let yNorm = (1-(p.y + 1)*0.5) * height;
+        // let xScreen = xNorm * width;
+        // let yScreen = yNorm * height;
         // let xScreen = Math.min(width-1, ((cameraToScreenPoint.x+1) * 0.5 * width));
         // let yScreen = Math.min(height-1, ((1 - (cameraToScreenPoint.y + 1) * 0.5) * height));
         // console.log([xScreen, yScreen]);
 
-        ctx.fillStyle="black";
-        ctx.fillRect(xScreen, yScreen, 2, 2);
+        if(i < loopLen/2) ctx.fillStyle="red";
+        else ctx.fillStyle="black";
+        ctx.fillRect(xNorm, yNorm, 2, 2);
         // }
     }
     theta += 0.01;
