@@ -3,5 +3,6 @@ export default class Scene {
         this.mesh = _mesh;
         this.camera = _camera;
         this.idList = _idList;
+        // console.log(this.idList);
     }
 }

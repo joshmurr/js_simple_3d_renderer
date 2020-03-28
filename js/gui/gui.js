@@ -23,17 +23,22 @@ export default class GUI {
         this.menuContainer.appendChild(title);
     }
 
-    button(_text){
+    button(id, _text){
         let button = document.createElement("button");
-        // button.classList.add("button");
+        button.id = id;
+        this.id_list.push(button.id);
+        button.value = 0;
         button.textContent = _text;
+        button.onclick = function(){
+            this.value++;
+        }
         this.menuContainer.appendChild(button);
     }
 
-    slider(id=null, _min, _max, _val){
+    slider(id, _min, _max, _val){
         let sliderContainer = document.createElement("div");
         let slider = document.createElement("input");
-        if(id) slider.id = String(id);
+        slider.id = String(id);
         this.id_list.push(slider.id);
         slider.classList.add("slider");
         slider.type = "range";
@@ -50,6 +55,22 @@ export default class GUI {
         input.type = "text";
         input.value = 0;
         this.menuContainer.appendChild(input);
+    }
+
+    dropdown(id, args){
+        let dropdown = document.createElement("select");
+        dropdown.id = String(id);
+        this.id_list.push(dropdown.id);
+        // dropdown.classList.add(
+        for(let i=0; i<args.length; i++){
+            let option = document.createElement("option");
+            option.textContent = args[i];
+            option.value = args[i].toLowerCase();
+            if(!i) option.selected = "selected";
+            dropdown.appendChild(option);
+        }
+        this.menuContainer.appendChild(dropdown);
+
     }
 
 }

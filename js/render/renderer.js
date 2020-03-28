@@ -32,6 +32,7 @@ export default class Renderer{
     h = 0;
     counter = 0;
     guiValues = {};
+    guiValuesRESET = {};
 
     constructor(scene, _width, _height){
         // this.guiValues = {};
@@ -170,19 +171,21 @@ export default class Renderer{
         let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 10);
         let viewMat = this.createViewMatrix(this.scene.camera);
 
+        let mesh = this.scene.mesh[this.guiValues["mesh"]];
+
         let MVP = new Mat44();
         MVP.setIdentity();
         MVP.multiplyMat(projectionMat);
         MVP.multiplyMat(viewMat);
-        MVP.multiplyMat(this.scene.mesh.getModelMatrix(this.guiValues));
+        MVP.multiplyMat(mesh.getModelMatrix(this.guiValues));
 
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        let loopLen = this.scene.mesh.verts.length;
+        let loopLen = mesh.verts.length;
 
         for(let i=0; i<loopLen; i++){
-            let v = this.scene.mesh.verts[i].getCopy();
+            let v = mesh.verts[i].getCopy();
             let p = MVP.getMultiplyVec(v);
             let z = p.w;
             p.NDC();
@@ -196,6 +199,12 @@ export default class Renderer{
                 this.ctx.closePath();
                 this.ctx.fill();
                 // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
+            }
+        }
+        if(this.guiValues["reset"]){
+            for(let guiElem in this.guiValues){
+                let ele = document.getElementById(guiElem);
+                ele.value = this.guiValuesRESET[guiElem];
             }
         }
         MVP.setIdentity();
@@ -234,7 +243,18 @@ export default class Renderer{
     findGUIElements(_idList){
         for(let i=0; i<_idList.length; i++){
             let ele = document.getElementById(_idList[i]);
-            this.guiValues[_idList[i]] = parseFloat(ele.value);
+            if(ele.type == "submit") {
+                this.guiValues[_idList[i]] = parseInt(ele.value);
+                this.guiValuesRESET[_idList[i]] = parseInt(ele.value);
+            }
+            if(ele.type == "range") {
+                this.guiValues[_idList[i]] = parseFloat(ele.value);
+                this.guiValuesRESET[_idList[i]] = parseFloat(ele.value);
+            }
+            if(ele.type == "select-one"){
+                this.guiValues[_idList[i]] = ele.options[ele.selectedIndex].value;    
+                this.guiValuesRESET[_idList[i]] = ele.options[ele.selectedIndex].value;    
+            }
         }
         console.log(this.guiValues);
     }
@@ -243,7 +263,13 @@ export default class Renderer{
         for(let guiElem in this.guiValues){
             if(this.guiValues.hasOwnProperty(guiElem)){
                 let ele = document.getElementById(guiElem);
-                this.guiValues[guiElem] = parseFloat(ele.value);
+                if(ele.type == "submit") {
+                    this.guiValues[guiElem] = parseInt(ele.value);
+                }
+                if(ele.type == "range") this.guiValues[guiElem] = parseFloat(ele.value);
+                if(ele.type == "select-one"){
+                    this.guiValues[guiElem] = ele.options[ele.selectedIndex].value;    
+                }
             }
         }
     }

@@ -19,6 +19,12 @@ for(let i=0; i<teapot.verts.length; i++){
     teapot.verts[i].y *= -1;
 }
 
+let meshes = {
+    "octahedron" : octahedron,
+    "icosahedron": icosahedron,
+    "teapot" : teapot
+};
+
 let gui = new GUI();
 gui.menu();
 gui.title("3D Engine");
@@ -34,10 +40,12 @@ gui.title("Scale");
 gui.slider("xScale",-10, 10, 1);
 gui.slider("yScale",-10, 10, 1);
 gui.slider("zScale",-10, 10, 1);
-gui.button("Reset");
+gui.button("reset", "Reset");
+// Gnarly arrow function to capitalize first letter of mesh in meshes object.
+gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
 
 let camera = new Vec3(0,-50,-100);
-let scene = new Scene(teapot, camera, gui.getIdList());
+let scene = new Scene(meshes, camera, gui.getIdList());
 
 let renderer = new Renderer(scene);
 

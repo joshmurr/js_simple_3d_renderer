@@ -68,7 +68,7 @@ button:hover{
 }
 
 .slider:hover {
-    opacity: 1;
+    background-color: #0F0;
 }
 
 .slider::-webkit-slider-thumb {
