@@ -1,13 +1,17 @@
+import Vec4 from '../math/vec4.js';
 import Mat44 from '../math/mat44.js';
 
 export default class Mesh{
-    // TODO: createTransformationMatrix : scale -> rotate -> translate
-
     verts = [];
     faces = [];
+    // faces_sorted = [];
+    indices_sorted = [];
+    norms= [];
+    NORMS_ARE_CALCULATED = false;
 
     constructor(){
-
+        this.modelMatrix = new Mat44();
+        this.modelMatrix.setIdentity();
     }
 
     get verts(){
@@ -23,25 +27,91 @@ export default class Mesh{
             this.verts[i] = v[i];
         }
     }
-
     set faces(f){
         for(let i=0; i<f.length; i++){
             this.faces[i] = f[i];
         }
     }
 
-    set origin(_M){
-        this.Mat = _M;
+    set sorted_indices(_sorted_array){
+        for(let i=0; i<_sorted_array.length; i++){
+            this.indices_sorted[i] = _sorted_array[i];
+        }
     }
 
-    get origin(){
-        return this.Mat;
+    get sorted_indices(){
+        this.sortIndicesByCentroid();
+        return this.indices_sorted;
+    }
+
+    set norms(_norms){
+        for(let i=0; i<_norms.length; i++){
+            this.norms[i] = _norms[i];
+        }
+    }
+
+    get norms(){
+        return this.norms;
+    }
+
+    sortIndicesByCentroid(){
+        // Store the <centroid.z, face> map for later sorting
+        let faces_unordered = new Map();
+        for(let i=0; i<this.faces.length; i++){
+            let face = this.faces[i];
+
+            // COMPUTE CENTROID --------
+            let sum = new Vec4(0,0,0,0);
+            for(let j=0; j<face.length; j++){
+                let v = this.verts[face[j]].getCopy();
+                let p = this.modelMatrix.getMultiplyVec(v);
+                sum.add(p);
+            }
+            sum.divide(face.length);
+            // Store INDEX in map
+            faces_unordered.set(sum.z, i);
+        }
+
+        // ORDER FACES BY CENTROID.Z ------------
+        // Rather than making a new map, the sorted faces are stored in an array
+        const sorted = [];
+        function sort_faces_into_array(value, key, map){
+            sorted.push(map.get(key));
+        }
+        // An arrow function to sort the map by key
+        // Arrow functions are SO hard to read..
+        // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
+        let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[0] - b[0]));
+        // sort_faces_into_array is a callback function which takes (value, key, map)
+        // I presume automatically
+        faces_ordered.forEach(sort_faces_into_array);
+        // Faces are now sorted back to front!
+        this.sorted_indices = sorted;
+    }
+
+
+    computeFaceNormals(){
+        let norms = [];
+        for(let i=0; i<this.faces.length; i++){
+            let p0 = this.verts[this.faces[i][0]];
+            let p1 = this.verts[this.faces[i][1]];
+            let p2 = this.verts[this.faces[i][2]];
+            
+            let p0subp1 = p0.getSubtract(p1);
+            let p2subp0 = p2.getSubtract(p0);
+
+            let norm = p0subp1.cross(p2subp0);
+            norm.normalize();
+            norms.push(norm);
+        }
+        this.NORMS_ARE_CALCULATED = true;
+        this.norms = norms;
     }
 
     getModelMatrix(_guiValues){
-
+        // NB: in Mat44.setMat([...]) values are entered in COLUMN MAJOR order.
         let scaleMat = new Mat44();
-        scaleMat.setMat([_guiValues["xScale"], 0, 0, 0, 0, _guiValues["yScale"], 0, 0, 0, 0, _guiValues["zScale"], 0, 0, 0, 0, 1]);
+        scaleMat.setMat([_guiValues["xScale"],0,0,0, 0,_guiValues["yScale"],0,0, 0,0,_guiValues["zScale"],0, 0,0,0,1]);
 
         let rotXMat = new Mat44();
         rotXMat.setMat([1, 0, 0, 0, 0, Math.cos(_guiValues["xRot"]), Math.sin(_guiValues["xRot"]), 0, 0, -Math.sin(_guiValues["xRot"]), Math.cos(_guiValues["xRot"]), 0, 0, 0, 0, 1]);
@@ -55,14 +125,60 @@ export default class Mesh{
         let transMat = new Mat44();
         transMat.setMat([1,0,0,0, 0,1,0,0, 0,0,1,0, _guiValues["xTrans"],_guiValues["yTrans"],_guiValues["zTrans"],1]);
 
-        let modelMatrix = new Mat44();
-        modelMatrix.setIdentity();
+        this.modelMatrix.setIdentity();
+        this.modelMatrix.multiplyMat(transMat);
+        this.modelMatrix.multiplyMat(rotXMat);
+        this.modelMatrix.multiplyMat(rotYMat);
+        this.modelMatrix.multiplyMat(rotZMat);
+        this.modelMatrix.multiplyMat(scaleMat);
 
-        modelMatrix.multiplyMat(transMat);
-        modelMatrix.multiplyMat(rotXMat);
-        modelMatrix.multiplyMat(rotYMat);
-        modelMatrix.multiplyMat(rotZMat);
-        modelMatrix.multiplyMat(scaleMat);
-        return modelMatrix;
+        return this.modelMatrix;
     }
+
+    /*
+    set sorted_faces(_sorted_array){
+        for(let i=0; i<_sorted_array.length; i++){
+            this.faces_sorted[i] = _sorted_array[i];
+        }
+    }
+
+    get sorted_faces(){
+        this.sortFacesByCentroid();
+        return this.faces_sorted;
+    }
+    sortFacesByCentroid(){
+        // Store the <centroid.z, face> map for later sorting
+        let faces_unordered = new Map();
+        for(let i=0; i<this.faces.length; i++){
+            let face = this.faces[i];
+
+            // COMPUTE CENTROID --------
+            let sum = new Vec4(0,0,0,0);
+            for(let j=0; j<face.length; j++){
+                let v = this.verts[face[j]].getCopy();
+                let p = this.modelMatrix.getMultiplyVec(v);
+                sum.add(p);
+            }
+            sum.divide(face.length);
+            // Store in map
+            faces_unordered.set(sum.z, face);
+        }
+
+        // ORDER FACES BY CENTROID.Z ------------
+        // Rather than making a new map, the sorted faces are stored in an array
+        const sorted = [];
+        function sort_faces_into_array(value, key, map){
+            sorted.push(map.get(key));
+        }
+        // An arrow function to sort the map by key
+        // Arrow functions are SO hard to read..
+        // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
+        let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[0] - b[0]));
+        // sort_faces_into_array is a callback function which takes (value, key, map)
+        // I presume automatically
+        faces_ordered.forEach(sort_faces_into_array);
+        // Faces are now sorted back to front!
+        this.sorted_faces = sorted;
+    }
+    */
 }

@@ -53,6 +53,9 @@ let scene = new Scene(meshes, camera, gui.getIdList());
 
 let renderer = new Renderer(scene);
 
+// octahedron.computeFaceNormals();
+icosahedron.computeFaceNormals();
+
 function draw(){
     // let time = new Date();
     renderer.render("faces");

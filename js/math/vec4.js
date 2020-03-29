@@ -54,8 +54,12 @@ export default class Vec4 extends Vec3{
     }
 
     subtract(v){
-        super.add(v);
+        super.subtract(v);
         if(v.constructor.type == "Vec4") this.w -= v.w;
+    }
+
+    getSubtract(v){
+        return new Vec4(this.x-v.x, this.y-v.y, this.z-v.z, this.w-v.w);
     }
 
     multiply(s){
