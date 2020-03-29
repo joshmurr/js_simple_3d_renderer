@@ -308,7 +308,11 @@ export default class Renderer{
                         normalTransformMatrix.transpose();
                         let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
                         let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light))); 
-                        this.ctx.fillStyle="rgb("+Math.floor(diffuse*mesh.colour.x)+","+Math.floor(diffuse*mesh.colour.y)+","+Math.floor(diffuse*mesh.colour.z)+")";
+                        if(mesh.colour){
+                            this.ctx.fillStyle="rgb("+Math.floor(diffuse*mesh.colour.x)+","+Math.floor(diffuse*mesh.colour.y)+","+Math.floor(diffuse*mesh.colour.z)+")";
+                        } else {
+                            this.ctx.fillStyle="rgb("+Math.floor(transformedNormal.x*255)+","+Math.floor(transformedNormal.y*255)+","+Math.floor(transformedNormal.z*255)+")";
+                        }
                     } else {
                         this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                     }

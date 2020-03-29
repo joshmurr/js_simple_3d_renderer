@@ -9,11 +9,15 @@ import Scene from './js/scene/scene.js';
 import Octahedon from './js/mesh/octahedron.js';
 import Icosahedron from './js/mesh/icosahedron.js';
 import Teapot from './js/mesh/teapot.js';
+import Tetrahedron from './js/mesh/tetrahedron.js';
+import Cube from './js/mesh/cube.js';
 // import Teapot2 from './js/mesh/teapot2.js';
 
 
 let octahedron = new Octahedon();
 let icosahedron = new Icosahedron();
+let tetrahedron = new Tetrahedron();
+let cube = new Cube();
 let teapot = new Teapot();
 // let teapot2 = new Teapot2();
 
@@ -24,6 +28,8 @@ for(let i=0; i<teapot.verts.length; i++){
 let meshes = {
     "octahedron" : octahedron,
     "icosahedron": icosahedron,
+    "tetrahedron": tetrahedron,
+    "cube": cube,
     // "teapot" : teapot,
     // "teapot2" : teapot2
 };
@@ -40,9 +46,9 @@ gui.slider("xRot",-Math.PI, Math.PI, 0);
 gui.slider("yRot",-Math.PI, Math.PI, 0);
 gui.slider("zRot",-Math.PI, Math.PI, 0);
 gui.title("Scale");
-gui.slider("xScale",-6, 10, 2);
-gui.slider("yScale",-6, 10, 2);
-gui.slider("zScale",-6, 10, 2);
+gui.slider("xScale",1, 4, 1.2);
+gui.slider("yScale",1, 4, 1.2);
+gui.slider("zScale",1, 4, 1.2);
 gui.button("reset", "Reset");
 // Gnarly arrow function to capitalize first letter of mesh in meshes object.
 gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
@@ -58,7 +64,11 @@ let renderer = new Renderer(scene);
 octahedron.computeFaceNormals();
 octahedron.colour = new Vec3(30, 130, 250);
 icosahedron.computeFaceNormals();
-icosahedron.colour = new Vec3(250, 100, 50);
+// icosahedron.colour = new Vec3(250, 100, 50);
+tetrahedron.computeFaceNormals();
+tetrahedron.colour = new Vec3(20, 255, 50);
+cube.computeFaceNormals();
+// cube.colour = new Vec3(20, 255, 50);
 
 function draw(){
     // let time = new Date();
