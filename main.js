@@ -55,7 +55,7 @@ let renderer = new Renderer(scene);
 
 function draw(){
     // let time = new Date();
-    renderer.render("wireframe");
+    renderer.render("faces");
     requestAnimationFrame(draw);
 }
 

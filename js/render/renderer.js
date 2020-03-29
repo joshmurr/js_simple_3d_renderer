@@ -211,13 +211,9 @@ export default class Renderer{
             for(let i=0; i<loopLen; i++){
                 let face = mesh.faces[i];
 
-                // CENTROID ----------------
-                let sum = new Vec4(0,0,0,0);
-
                 this.ctx.beginPath();
                 for(let j=0; j<face.length; j++){
                     let v = mesh.verts[face[j]].getCopy();
-                    sum.add(v);
                     let p = MVP.getMultiplyVec(v);
                     let z = p.w;
                     p.NDC();
@@ -228,28 +224,59 @@ export default class Renderer{
                         this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                         this.ctx.lineWidth = 8/z;
                         this.ctx.lineTo(xScreen, yScreen);
-                        // this.ctx.fill();
                     }
                 }
                 this.ctx.closePath();
                 this.ctx.stroke();
+            }
 
-                // DRAW CENTROID -------------------------------------
+        }
+        // FACES ----------------------------------------------------------
+        else if(_style == "faces"){
+            let faces_unordered= {/* centroid : face */};
+            for(let i=0; i<mesh.faces.length; i++){
+                let face = mesh.faces[i];
+
+                // COMPUTE CENTROID --------
+                let sum = new Vec4(0,0,0,0);
+                for(let j=0; j<face.length; j++){
+                    let v = mesh.verts[face[j]].getCopy();
+                    let p = MVP.getMultiplyVec(v);
+                    sum.add(p);
+                }
                 sum.divide(face.length);
-                let p = MVP.getMultiplyVec(sum);
-                let z = p.w;
-                p.NDC();
-                if(z > 0){
-                    let xScreen = ((p.x + 1)*0.5) * this.width;
-                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                    this.ctx.fillStyle="rgb("+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                faces_unordered[sum.z] = face;
+            }
+            // console.log(faces_unordered);
+            // ORDER FACES BY CENTROID.Z ------------
+            const faces_ordered = {};
+            Object.keys(faces_unordered).sort().forEach(function(key){
+                faces_ordered[key] = faces_unordered[key];
+            });
+
+                
+            // ------------------------
+            for(let face in faces_ordered){
+                if(faces_ordered.hasOwnProperty(face)){
                     this.ctx.beginPath();
-                    this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
+                    for(let j=0; j<faces_ordered[face].length; j++){
+                    
+                        let v = mesh.verts[faces_ordered[face][j]].getCopy();
+                        let p = MVP.getMultiplyVec(v);
+                        let z = p.w;
+                        p.NDC();
+
+                        if(z > 0){
+                            let xScreen = ((p.x + 1)*0.5) * this.width;
+                            let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                            this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                            this.ctx.lineTo(xScreen, yScreen);
+                        }
+                    }
                     this.ctx.closePath();
                     this.ctx.fill();
                 }
             }
-
         }
         // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
         else if(_style == "teapot2"){
@@ -334,7 +361,7 @@ export default class Renderer{
                 this.guiValuesRESET[_idList[i]] = ele.options[ele.selectedIndex].value;    
             }
         }
-        console.log(this.guiValues);
+        // console.log(this.guiValues);
     }
 
     updateGUIValues(){
