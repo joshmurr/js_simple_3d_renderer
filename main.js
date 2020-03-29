@@ -48,7 +48,7 @@ gui.button("reset", "Reset");
 gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
 // gui.dropdown("mesh", ["Teapot2"]);
 
-let camera = new Vec3(0,-50,-100);
+let camera = new Vec3(0,0,-15);
 let scene = new Scene(meshes, camera, gui.getIdList());
 
 let renderer = new Renderer(scene);

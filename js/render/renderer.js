@@ -4,29 +4,6 @@ import Mat33 from '../math/mat33.js'
 import Mat44 from '../math/mat44.js'
 
 export default class Renderer{
-    /*
-     * Takes a mesh, camera and a projection.
-     *
-     * Extends each Vec3 to a Vec4, then transforms to clip space.
-     *
-     * Applies perspective transformation.
-     *
-     * Applies viewport transform to X and Y.
-     *
-     * Sorts faces front to back.
-     *
-     * Compute winding direction?
-     *
-     * Renders to screen.
-     *
-     * 1. Mat44 ProjectionMatrix (FOV, Aspect Ratio, Near, Far)
-     * 2. Mat44 ViewMatrix       (Camera Pos, Look At, Up)
-     * 3. Mat44 ModelMatrix      (Identity - Origin)
-     * 4. Mat44 MVP = Projection * View * Model
-     *
-     *
-     */
-
     ctx = null;
     w = 0;
     h = 0;
@@ -44,32 +21,30 @@ export default class Renderer{
 
     createPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
         /*
+         *  https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
          *
-         *  https://www.geeks3d.com/20090729/howto-perspective-projection-matrix-in-opengl/
-         *  projMat = [ d/a 0   0      0
-         *               0  d   0      0
-         *               0  0 f/f-n -nf/f-n
-         *               0  0  -1      0     ]
+         *  projMat = [ d/a 0    0      0
+         *               0  d    0      0
+         *               0  0   f/f-n  -1
+         *               0  0 -nf/f-n   0 ]
          *
          */
         
-        let d = 1 / Math.tan((_FOV/2) * (Math.PI/180));
-        let a = _aspect;
-            
+        let scale = 1 / Math.tan((_FOV/2) * (Math.PI/180));
 
         let projMat = new Mat44();
-        projMat.M[0]  = d/a;
+        projMat.M[0]  = scale;
         projMat.M[1]  = 0;
         projMat.M[2]  = 0;
         projMat.M[3] = 0;
         projMat.M[4]  = 0;
-        projMat.M[5]  = d;
+        projMat.M[5]  = scale;
         projMat.M[6]  = 0;
         projMat.M[7] = 0;
         projMat.M[8]  = 0;
         projMat.M[9]  = 0;
         projMat.M[10] = _far / (_far - _near);
-        projMat.M[11] = -_near*_far / (_far - _near);
+        projMat.M[11] = _near*_far / (_far - _near);
         projMat.M[12]  = 0;
         projMat.M[13]  = 0;
         projMat.M[14] = -1;
@@ -78,14 +53,89 @@ export default class Renderer{
         return projMat;
     }
 
+    createOpenGLPerspectiveProjectionMatrix(_FOV, _aspect, _near, _far){
+        /*
+         *  https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+         *
+         *  projMat = [ 2n/r-l   0     r+l/r-l     0
+         *                 0   2n/t-b  t+b/t-b     0
+         *                 0     0    -f+n/f-n -2nf/f-n
+         *                 0     0       -1        0     ]
+         *
+         */
+        
+        let scale = _near * Math.tan((_FOV/2) * (Math.PI/180));
+        let right = _aspect * scale;
+        let left  = -right;
+        let top_  = scale; // 'top' is a keyword apparently
+        let bottom = -top_;
+
+        let projMat = new Mat44();
+        projMat.M[0]  = 2*_near/(right-left);
+        projMat.M[1]  = 0;
+        projMat.M[2]  = 0;
+        projMat.M[3] = 0;
+        projMat.M[4]  = 0;
+        projMat.M[5]  = 2*_near/(top_-bottom);
+        projMat.M[6]  = 0;
+        projMat.M[7] = 0;
+        projMat.M[8]  = (right+left)/(right-left);
+        projMat.M[9]  = (top_+bottom)/(top_-bottom);
+        projMat.M[10] = -(_far+_near) / (_far - _near);
+        projMat.M[11] = -2*_near*_far / (_far - _near);
+        projMat.M[12]  = 0;
+        projMat.M[13]  = 0;
+        projMat.M[14] = -1;
+        projMat.M[15] = 0;
+
+        return projMat;
+    }
+
+    createOpenGLOrthographicProjectionMatrix(_near, _far){
+        /*
+         * https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/orthographic-projection-matrix
+         *
+         *  projMat = [ 2/r-l   0      0    -(r+l/r-l)
+         *                0   2/t-b    0    -(t+b/t-b)
+         *                0     0   -2/f-n   -f+n/f-n 
+         *                0     0      0         1       ]
+         *
+         */
+
+        // b t l r near far all computed differently to Perspective Matrix...
+        
+        // let scale = _near * Math.tan((_FOV/2) * (Math.PI/180));
+        // let right = _aspect * scale;
+        // let left  = -right;
+        // let top_  = scale; // 'top' is a keyword apparently
+        // let bottom = -top_;
+
+        let projMat = new Mat44();
+        projMat.M[0]  = 2/(right-left);
+        projMat.M[1]  = 0;
+        projMat.M[2]  = 0;
+        projMat.M[3] = 0;
+        projMat.M[4]  = 0;
+        projMat.M[5]  = 2/(top_-bottom);
+        projMat.M[6]  = 0;
+        projMat.M[7] = 0;
+        projMat.M[8]  = 0;
+        projMat.M[9]  = 0;
+        projMat.M[10] = -2 / (_far - _near);
+        projMat.M[11] = 0;
+        projMat.M[12]  = -(right+left)/(right-left);
+        projMat.M[13]  = -(top_+bottom)/(top_-bottom);
+        projMat.M[14] = -(_far+_near)/(_far-_near);
+        projMat.M[15] = 1;
+
+        return projMat;
+    }
+
     createViewMatrix(_camera, _target=new Vec3(0,0,0), _up=new Vec3(0,1,0)){
         /*
-         * All args : Vec3
-         *
          * OpenGl Style (-dir):
          * viewMat = [   ^  ^    ^   ^
          *             side up -dir pos ]
-         *
          *
          */
 
@@ -168,7 +218,8 @@ export default class Renderer{
     }
 
     render(_style){
-        let projectionMat = this.createPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 10);
+        let projectionMat = this.createOpenGLPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 100);
+        // let projectionMat = this.createOpenGLOrthographicProjectionMatrix(90, this.width/this.height, 0.1, 100);
         let viewMat = this.createViewMatrix(this.scene.camera);
 
         let mesh = this.scene.mesh[this.guiValues["mesh"]];
@@ -233,7 +284,8 @@ export default class Renderer{
         }
         // FACES ----------------------------------------------------------
         else if(_style == "faces"){
-            let faces_unordered= {/* centroid : face */};
+            // Store the <centroid.z, face> map for later sorting
+            let faces_unordered = new Map();
             for(let i=0; i<mesh.faces.length; i++){
                 let face = mesh.faces[i];
 
@@ -245,38 +297,47 @@ export default class Renderer{
                     sum.add(p);
                 }
                 sum.divide(face.length);
-                faces_unordered[sum.z] = face;
+                // Store in map
+                faces_unordered.set(sum.z, face);
             }
-            // console.log(faces_unordered);
-            // ORDER FACES BY CENTROID.Z ------------
-            const faces_ordered = {};
-            Object.keys(faces_unordered).sort().forEach(function(key){
-                faces_ordered[key] = faces_unordered[key];
-            });
 
-                
+            // ORDER FACES BY CENTROID.Z ------------
+            // Rather than making a new map, the sorted faces are stored in an array
+            let faces_sorted = [];
+            function sort_faces_into_array(value, key, map){
+                faces_sorted.push(map.get(key));
+            }
+            // An arrow function to sort the map by key
+            // Arrow functions are SO hard to read..
+            // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
+            const faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => b[0] - a[0]));
+            // sort_faces_into_array is a callback function which takes (value, key, map)
+            // I presume automatically
+            faces_ordered.forEach(sort_faces_into_array);
+            // Faces are now sorted back to front!
+
             // ------------------------
-            for(let face in faces_ordered){
-                if(faces_ordered.hasOwnProperty(face)){
+            for(let i=0; i<faces_sorted.length; i++){
+                let face = faces_sorted[i];
                     this.ctx.beginPath();
-                    for(let j=0; j<faces_ordered[face].length; j++){
+                    let xScreen, yScreen;
+                    for(let j=0; j<face.length; j++){
                     
-                        let v = mesh.verts[faces_ordered[face][j]].getCopy();
+                        let v = mesh.verts[face[j]].getCopy();
                         let p = MVP.getMultiplyVec(v);
                         let z = p.w;
                         p.NDC();
 
                         if(z > 0){
-                            let xScreen = ((p.x + 1)*0.5) * this.width;
-                            let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                            this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                            xScreen = ((p.x + 1)*0.5) * this.width;
+                            yScreen = (1-(p.y + 1)*0.5) * this.height;
                             this.ctx.lineTo(xScreen, yScreen);
                         }
+                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                     }
                     this.ctx.closePath();
                     this.ctx.fill();
                 }
-            }
         }
         // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
         else if(_style == "teapot2"){
