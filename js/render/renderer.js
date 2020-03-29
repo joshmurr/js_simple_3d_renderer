@@ -206,6 +206,53 @@ export default class Renderer{
         }
         // WIREFRAME ------------------------------------------------------
         else if(_style == "wireframe"){
+            let loopLen = mesh.faces.length;
+
+            for(let i=0; i<loopLen; i++){
+                let face = mesh.faces[i];
+
+                // CENTROID ----------------
+                let sum = new Vec4(0,0,0,0);
+
+                this.ctx.beginPath();
+                for(let j=0; j<face.length; j++){
+                    let v = mesh.verts[face[j]].getCopy();
+                    sum.add(v);
+                    let p = MVP.getMultiplyVec(v);
+                    let z = p.w;
+                    p.NDC();
+
+                    if(z > 0){
+                        let xScreen = ((p.x + 1)*0.5) * this.width;
+                        let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                        this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                        this.ctx.lineWidth = 8/z;
+                        this.ctx.lineTo(xScreen, yScreen);
+                        // this.ctx.fill();
+                    }
+                }
+                this.ctx.closePath();
+                this.ctx.stroke();
+
+                // DRAW CENTROID -------------------------------------
+                sum.divide(face.length);
+                let p = MVP.getMultiplyVec(sum);
+                let z = p.w;
+                p.NDC();
+                if(z > 0){
+                    let xScreen = ((p.x + 1)*0.5) * this.width;
+                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                    this.ctx.fillStyle="rgb("+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                    this.ctx.beginPath();
+                    this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                }
+            }
+
+        }
+        // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
+        else if(_style == "teapot2"){
             let loopLen = mesh.faces.length-42;
 
             for(let i=0; i<loopLen; i+=3){

@@ -9,16 +9,13 @@ import Scene from './js/scene/scene.js';
 import Octahedon from './js/mesh/octahedron.js';
 import Icosahedron from './js/mesh/icosahedron.js';
 import Teapot from './js/mesh/teapot.js';
-import Teapot2 from './js/mesh/teapot2.js';
+// import Teapot2 from './js/mesh/teapot2.js';
 
 
 let octahedron = new Octahedon();
 let icosahedron = new Icosahedron();
 let teapot = new Teapot();
-let teapot2 = new Teapot2();
-
-console.log(teapot2.verts.length);
-console.log(teapot2.faces.length);
+// let teapot2 = new Teapot2();
 
 for(let i=0; i<teapot.verts.length; i++){
     teapot.verts[i].y *= -1;
@@ -28,7 +25,7 @@ let meshes = {
     "octahedron" : octahedron,
     "icosahedron": icosahedron,
     "teapot" : teapot,
-    "teapot2" : teapot2
+    // "teapot2" : teapot2
 };
 
 let gui = new GUI();
@@ -48,8 +45,8 @@ gui.slider("yScale",-6, 10, 2);
 gui.slider("zScale",-6, 10, 2);
 gui.button("reset", "Reset");
 // Gnarly arrow function to capitalize first letter of mesh in meshes object.
-// gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
-gui.dropdown("mesh", ["Teapot2"]);
+gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
+// gui.dropdown("mesh", ["Teapot2"]);
 
 let camera = new Vec3(0,-50,-100);
 let scene = new Scene(meshes, camera, gui.getIdList());

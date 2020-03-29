@@ -21,6 +21,8 @@ I've scoured the internet and have read a lot for this project. Here are a few o
 
 [3D Games Engine Programming: Understanding the View Matrix](https://www.3dgep.com/understanding-the-view-matrix/)
 
+[The Little Grasshopper: 3D Wireframes in SVG](https://prideout.net/blog/svg_wireframes/) and [accompanying code](https://github.com/prideout/svg3d).
+
 [Coding Labs: World, View and Projection Matrices](http://www.codinglabs.net/article_world_view_projection_matrix.aspx)
 
 [WebGL Model View Projection](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_model_view_projection)
