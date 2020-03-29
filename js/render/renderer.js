@@ -284,39 +284,6 @@ export default class Renderer{
         }
         // FACES ----------------------------------------------------------
         else if(_style == "faces"){
-            // // Store the <centroid.z, face> map for later sorting
-            // let faces_unordered = new Map();
-            // for(let i=0; i<mesh.faces.length; i++){
-            // let face = mesh.faces[i];
-            //
-            // // COMPUTE CENTROID --------
-            // let sum = new Vec4(0,0,0,0);
-            // for(let j=0; j<face.length; j++){
-            // let v = mesh.verts[face[j]].getCopy();
-            // let p = MVP.getMultiplyVec(v);
-            // sum.add(p);
-            // }
-            // sum.divide(face.length);
-            // // Store in map
-            // faces_unordered.set(sum.z, face);
-            // }
-            //
-            // // ORDER FACES BY CENTROID.Z ------------
-            // // Rather than making a new map, the sorted faces are stored in an array
-            // let faces_sorted = [];
-            // function sort_faces_into_array(value, key, map){
-            // faces_sorted.push(map.get(key));
-            // }
-            // // An arrow function to sort the map by key
-            // // Arrow functions are SO hard to read..
-            // // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
-            // const faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => b[0] - a[0]));
-            // // sort_faces_into_array is a callback function which takes (value, key, map)
-            // // I presume automatically
-            // faces_ordered.forEach(sort_faces_into_array);
-            // // Faces are now sorted back to front!
-
-            // ------------------------
             for(let i=0; i<mesh.sorted_indices.length; i++){
                 let face = mesh.faces[mesh.sorted_indices[i]];
                 this.ctx.beginPath();
@@ -333,10 +300,15 @@ export default class Renderer{
                         yScreen = (1-(p.y + 1)*0.5) * this.height;
                         this.ctx.lineTo(xScreen, yScreen);
                     }
+
                     
                     if(mesh.NORMS_ARE_CALCULATED){
                         let norm = mesh.norms[mesh.sorted_indices[i]];
-                        this.ctx.fillStyle="rgb("+Math.floor(norm.x*255)+","+Math.floor(norm.y*255)+","+Math.floor(norm.z*255)+")";
+                        let normalTransformMatrix = MVP.getAffineInverse();
+                        normalTransformMatrix.transpose();
+                        let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
+                        let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light))); 
+                        this.ctx.fillStyle="rgb("+Math.floor(diffuse*mesh.colour.x)+","+Math.floor(diffuse*mesh.colour.y)+","+Math.floor(diffuse*mesh.colour.z)+")";
                     } else {
                         this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                     }

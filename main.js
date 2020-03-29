@@ -24,7 +24,7 @@ for(let i=0; i<teapot.verts.length; i++){
 let meshes = {
     "octahedron" : octahedron,
     "icosahedron": icosahedron,
-    "teapot" : teapot,
+    // "teapot" : teapot,
     // "teapot2" : teapot2
 };
 
@@ -49,12 +49,16 @@ gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.sl
 // gui.dropdown("mesh", ["Teapot2"]);
 
 let camera = new Vec3(0,0,-15);
-let scene = new Scene(meshes, camera, gui.getIdList());
+let light = new Vec3(-100,-100,100);
+light.normalize();
+let scene = new Scene(meshes, camera, light, gui.getIdList());
 
 let renderer = new Renderer(scene);
 
-// octahedron.computeFaceNormals();
+octahedron.computeFaceNormals();
+octahedron.colour = new Vec3(30, 130, 250);
 icosahedron.computeFaceNormals();
+icosahedron.colour = new Vec3(250, 100, 50);
 
 function draw(){
     // let time = new Date();

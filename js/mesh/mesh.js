@@ -1,57 +1,67 @@
+import Vec3 from '../math/vec3.js';
 import Vec4 from '../math/vec4.js';
 import Mat44 from '../math/mat44.js';
 
 export default class Mesh{
-    verts = [];
-    faces = [];
+    _verts = [];
+    _faces = [];
     // faces_sorted = [];
-    indices_sorted = [];
-    norms= [];
-    NORMS_ARE_CALCULATED = false;
+    _indices_sorted = [];
+    _norms = [];
+    _NORMS_ARE_CALCULATED = false;
+    _colour = null;
 
     constructor(){
         this.modelMatrix = new Mat44();
         this.modelMatrix.setIdentity();
     }
 
+    get colour(){
+        return this._colour;
+    }
+
+    set colour(v){
+        this._colour = new Vec3(v.x,v.y,v.z);
+    }
+
     get verts(){
-        return this.verts;
+        return this._verts;
     }
 
     get faces(){
-        return this.faces;
+        return this._faces;
     }
 
     set verts(v){
         for(let i=0; i<v.length; i++){
-            this.verts[i] = v[i];
+            this._verts[i] = v[i];
         }
     }
     set faces(f){
         for(let i=0; i<f.length; i++){
-            this.faces[i] = f[i];
+            this._faces[i] = f[i];
         }
     }
 
     set sorted_indices(_sorted_array){
         for(let i=0; i<_sorted_array.length; i++){
-            this.indices_sorted[i] = _sorted_array[i];
+            this._indices_sorted[i] = _sorted_array[i];
         }
     }
 
     get sorted_indices(){
         this.sortIndicesByCentroid();
-        return this.indices_sorted;
+        return this._indices_sorted;
     }
 
     set norms(_norms){
         for(let i=0; i<_norms.length; i++){
-            this.norms[i] = _norms[i];
+            this._norms[i] = _norms[i];
         }
     }
 
     get norms(){
-        return this.norms;
+        return this._norms;
     }
 
     sortIndicesByCentroid(){
