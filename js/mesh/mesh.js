@@ -5,7 +5,6 @@ import Mat44 from '../math/mat44.js';
 export default class Mesh{
     _verts = [];
     _faces = [];
-    // faces_sorted = [];
     _indices_sorted = [];
     _norms = [];
     _NORMS_ARE_CALCULATED = false;
@@ -89,11 +88,11 @@ export default class Mesh{
             sorted.push(map.get(key));
         }
         // An arrow function to sort the map by key
-        // Arrow functions are SO hard to read..
+        // Arrow functions are difficult to read
         // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
         let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[0] - b[0]));
-        // sort_faces_into_array is a callback function which takes (value, key, map)
-        // I presume automatically
+        // sort_faces_into_array is a callback function which takes (value, key, map).
+        // I presume this is an automatic feature of a Map.
         faces_ordered.forEach(sort_faces_into_array);
         // Faces are now sorted back to front!
         this.sorted_indices = sorted;
@@ -119,7 +118,7 @@ export default class Mesh{
     }
 
     getModelMatrix(_guiValues){
-        // NB: in Mat44.setMat([...]) values are entered in COLUMN MAJOR order.
+        // NB: in Mat44.setMat([0,...,15]) values are entered in COLUMN MAJOR order.
         let scaleMat = new Mat44();
         scaleMat.setMat([_guiValues["xScale"],0,0,0, 0,_guiValues["yScale"],0,0, 0,0,_guiValues["zScale"],0, 0,0,0,1]);
 

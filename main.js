@@ -37,22 +37,26 @@ let meshes = {
 let gui = new GUI();
 gui.menu();
 gui.title("3D Engine");
+gui.title("Model");
+gui.title("Drawing Style");
+gui.button("points", "Points", 0);
+gui.button("wireframe", "Wireframe", 0);
+gui.button("faces", "Faces", 1);
 gui.title("Translation");
-gui.slider("xTrans",-9,10, 0);
-gui.slider("yTrans",-9,10, 0);
-gui.slider("zTrans",-9,10, 0);
+gui.slider("xTrans",-9,10, 0, 0.1);
+gui.slider("yTrans",-9,10, 0, 0.1);
+gui.slider("zTrans",-9,10, 0, 0.1);
 gui.title("Rotation");
-gui.slider("xRot",-Math.PI, Math.PI, 0);
-gui.slider("yRot",-Math.PI, Math.PI, 0);
-gui.slider("zRot",-Math.PI, Math.PI, 0);
+gui.slider("xRot",-Math.PI, Math.PI, 0, 0.1);
+gui.slider("yRot",-Math.PI, Math.PI, 0, 0.1);
+gui.slider("zRot",-Math.PI, Math.PI, 0, 0.1);
 gui.title("Scale");
-gui.slider("xScale",1, 4, 1.2);
-gui.slider("yScale",1, 4, 1.2);
-gui.slider("zScale",1, 4, 1.2);
-gui.button("reset", "Reset");
+gui.slider("xScale",1, 4, 1.2, 1);
+gui.slider("yScale",1, 4, 1.2, 1);
+gui.slider("zScale",1, 4, 1.2, 1);
+gui.button("reset", "Reset", 0);
 // Gnarly arrow function to capitalize first letter of mesh in meshes object.
 gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
-// gui.dropdown("mesh", ["Teapot2"]);
 
 let camera = new Vec3(0,0,-15);
 let light = new Vec3(-100,-100,100);
@@ -64,15 +68,15 @@ let renderer = new Renderer(scene);
 octahedron.computeFaceNormals();
 octahedron.colour = new Vec3(30, 130, 250);
 icosahedron.computeFaceNormals();
-// icosahedron.colour = new Vec3(250, 100, 50);
+icosahedron.colour = new Vec3(250, 100, 50);
 tetrahedron.computeFaceNormals();
 tetrahedron.colour = new Vec3(20, 255, 50);
 cube.computeFaceNormals();
-// cube.colour = new Vec3(20, 255, 50);
+cube.colour = new Vec3(20, 255, 50);
 
 function draw(){
     // let time = new Date();
-    renderer.render("faces");
+    renderer.render();
     requestAnimationFrame(draw);
 }
 

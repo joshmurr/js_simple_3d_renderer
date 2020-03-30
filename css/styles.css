@@ -55,6 +55,9 @@ button{
 button:hover{
     background-color: blue;
 }
+button.selected{
+    background-color: red;
+}
 
 
 .slider {

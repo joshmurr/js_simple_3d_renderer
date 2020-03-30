@@ -156,35 +156,6 @@ export default class Renderer{
         return viewMat;
     }
 
-    createScreenMatrix(){
-        /*
-         * screenMat = [ w/2   0   0  (w/2)+sx
-         *                0  -h/s  0  (h/2)+sy
-         *                0    0  d/2    d/2
-         *                0    0   0      1   ]
-         *
-         */
-
-        let screenMat = new Mat44();
-
-        console.log("w: " + this.width);
-        console.log("h: " + this.height);
-
-        let d = 1; // This can be changed to change mapping
-        let sx = 0;
-        let sy = 0;
-
-        screenMat.M[0] = this.width/2;
-        screenMat.M[5] = -this.height/2;
-        screenMat.M[10] = d/2;
-        screenMat.M[12] = (this.width/2) + sx;
-        screenMat.M[13] = (this.height/2) + sy;
-        screenMat.M[14] = d/2;
-        screenMat.M[15] = 1;
-
-        return screenMat;
-    }
-
     simpleRender(){
         // Renders without calculating view or perspective matrices.
         // Assumes Mesh is at origin.
@@ -217,7 +188,7 @@ export default class Renderer{
         return projMat;
     }
 
-    render(_style){
+    render(){
         let projectionMat = this.createOpenGLPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 100);
         // let projectionMat = this.createOpenGLOrthographicProjectionMatrix(90, this.width/this.height, 0.1, 100);
         let viewMat = this.createViewMatrix(this.scene.camera);
@@ -233,57 +204,9 @@ export default class Renderer{
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        // POINTS ---------------------------------------------------------
-        if(_style == "points"){
-            let loopLen = mesh.verts.length;
-
-            for(let i=0; i<loopLen; i++){
-                let v = mesh.verts[i].getCopy();
-                let p = MVP.getMultiplyVec(v);
-                let z = p.w;
-                p.NDC();
-
-                if(z > 0){
-                    let xScreen = ((p.x + 1)*0.5) * this.width;
-                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                    this.ctx.beginPath();
-                    this.ctx.arc(xScreen, yScreen, 32/z, 0, Math.PI*2);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                    // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
-                }
-            }
-        }
-        // WIREFRAME ------------------------------------------------------
-        else if(_style == "wireframe"){
-            let loopLen = mesh.faces.length;
-
-            for(let i=0; i<loopLen; i++){
-                let face = mesh.faces[i];
-
-                this.ctx.beginPath();
-                for(let j=0; j<face.length; j++){
-                    let v = mesh.verts[face[j]].getCopy();
-                    let p = MVP.getMultiplyVec(v);
-                    let z = p.w;
-                    p.NDC();
-
-                    if(z > 0){
-                        let xScreen = ((p.x + 1)*0.5) * this.width;
-                        let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                        this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                        this.ctx.lineWidth = 8/z;
-                        this.ctx.lineTo(xScreen, yScreen);
-                    }
-                }
-                this.ctx.closePath();
-                this.ctx.stroke();
-            }
-
-        }
+        // RENDER: --------------------------------------------------------
         // FACES ----------------------------------------------------------
-        else if(_style == "faces"){
+        if(this.guiValues["faces"]%2!==0){
             for(let i=0; i<mesh.sorted_indices.length; i++){
                 let face = mesh.faces[mesh.sorted_indices[i]];
                 this.ctx.beginPath();
@@ -316,39 +239,123 @@ export default class Renderer{
                     } else {
                         this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
                     }
+                    
 
                 }
                 this.ctx.closePath();
                 this.ctx.fill();
             }
         }
-        // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
-        else if(_style == "teapot2"){
-            let loopLen = mesh.faces.length-42;
 
-            for(let i=0; i<loopLen; i+=3){
-                this.ctx.beginPath();
-                for(let j=0; j<3; j++){
-                    let face = mesh.faces[i+j];
-                    let v = mesh.verts[face[0]].getCopy();
+        // WIREFRAME ------------------------------------------------------
+        if(this.guiValues["wireframe"]%2!==0){
+            // Draws point-to-point rather than creating a polygon perface,
+            // as the latter results in sharp ugly corners.
+            for(let i=0; i<mesh.sorted_indices.length; i++){
+                let face = mesh.faces[mesh.sorted_indices[i]];
+
+                let xRange, yRange, zRange;
+                let xScreen, yScreen;
+                let xColour, yColour, zColour;
+                let finalColour;
+                let xPrev, yPrev;
+
+                for(let j=0; j<face.length; j++){
+                    let v = mesh.verts[face[j]].getCopy();
                     let p = MVP.getMultiplyVec(v);
                     let z = p.w;
                     p.NDC();
 
                     if(z > 0){
-                        let xScreen = ((p.x + 1)*0.5) * this.width;
-                        let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                        this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                        this.ctx.lineWidth = 8/z;
-                        this.ctx.lineTo(xScreen, yScreen);
-                        // this.ctx.fill();
-                    }
-                }
-                this.ctx.closePath();
-                this.ctx.stroke();
-            }
+                        xRange  = (p.x + 1)*0.5;
+                        yRange  = 1-(p.y + 1)*0.5;
+                        zRange  = (p.z + 1)*0.5;
+                        xScreen = Math.round(((xRange * this.width)*2)/2);
+                        yScreen = Math.round(((yRange * this.height)*2)/2);
+                        xColour = Math.floor(xRange * 255);
+                        yColour = Math.floor(yRange * 255);
+                        zColour = Math.floor(zRange * 255);
 
+                            if(mesh.NORMS_ARE_CALCULATED){
+                                let norm = mesh.norms[mesh.sorted_indices[i]];
+                                let normalTransformMatrix = MVP.getAffineInverse();
+                                normalTransformMatrix.transpose();
+                                let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
+                                if(transformedNormal.dot(new Vec4(0,0,-1000)) > 0.5){
+                                    finalColour = "rgba("+xColour+","+yColour+","+zColour+",0.5)";
+                                } else {
+                                    finalColour = "rgb("+xColour+","+yColour+","+zColour+")";
+                                }
+                            } else {
+                                finalColour = "rgb("+xColour+","+yColour+","+zColour+")";
+                            }
+
+                        if(xPrev && yPrev) {
+                            // IF PREV POINT
+                            this.ctx.beginPath();
+                            this.ctx.strokeStyle=finalColour;
+                            this.ctx.lineCap = "round";
+                            this.ctx.lineWidth = zRange * 2;
+                            this.ctx.moveTo(xPrev, yPrev);
+                            this.ctx.lineTo(xScreen, yScreen);
+                            this.ctx.stroke();
+                        }
+                    }
+                    xPrev = xScreen;
+                    yPrev = yScreen;
+                }
+            }
         }
+        // POINTS ---------------------------------------------------------
+        if(this.guiValues["points"]%2!==0){
+            let loopLen = mesh.verts.length;
+
+            for(let i=0; i<loopLen; i++){
+                let v = mesh.verts[i].getCopy();
+                let p = MVP.getMultiplyVec(v);
+                let z = p.w;
+                p.NDC();
+
+                if(z > 0){
+                    let xScreen = ((p.x + 1)*0.5) * this.width;
+                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                    this.ctx.beginPath();
+                    this.ctx.arc(xScreen, yScreen, 16/z, 0, Math.PI*2);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
+                }
+            }
+        }
+        // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
+        // else if(_style == "teapot2"){
+            // let loopLen = mesh.faces.length-42;
+//
+            // for(let i=0; i<loopLen; i+=3){
+                // this.ctx.beginPath();
+//
+                // for(let j=0; j<3; j++){
+                    // let face = mesh.faces[i+j];
+                    // let v = mesh.verts[face[0]].getCopy();
+                    // let p = MVP.getMultiplyVec(v);
+                    // let z = p.w;
+                    // p.NDC();
+//
+                    // if(z > 0){
+                        // let xScreen = ((p.x + 1)*0.5) * this.width;
+                        // let yScreen = (1-(p.y + 1)*0.5) * this.height;
+                        // this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                        // this.ctx.lineWidth = 8/z;
+                        // this.ctx.lineTo(xScreen, yScreen);
+                        // // this.ctx.fill();
+                    // }
+                // }
+                // this.ctx.closePath();
+                // this.ctx.stroke();
+            // }
+//
+        // }
         // ----------------------------------------------------------------
         if(this.guiValues["reset"]){
             for(let guiElem in this.guiValues){
@@ -394,15 +401,15 @@ export default class Renderer{
     findGUIElements(_idList){
         for(let i=0; i<_idList.length; i++){
             let ele = document.getElementById(_idList[i]);
-            if(ele.type == "submit") {
+            if(ele.type == "submit") { // button
                 this.guiValues[_idList[i]] = parseInt(ele.value);
                 this.guiValuesRESET[_idList[i]] = parseInt(ele.value);
             }
-            if(ele.type == "range") {
+            if(ele.type == "range") { // slider
                 this.guiValues[_idList[i]] = parseFloat(ele.value);
                 this.guiValuesRESET[_idList[i]] = parseFloat(ele.value);
             }
-            if(ele.type == "select-one"){
+            if(ele.type == "select-one"){ // dropdown
                 this.guiValues[_idList[i]] = ele.options[ele.selectedIndex].value;
                 this.guiValuesRESET[_idList[i]] = ele.options[ele.selectedIndex].value;
             }

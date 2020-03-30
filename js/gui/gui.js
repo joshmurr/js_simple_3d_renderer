@@ -23,19 +23,21 @@ export default class GUI {
         this.menuContainer.appendChild(title);
     }
 
-    button(id, _text){
+    button(id, _text, _value){
         let button = document.createElement("button");
         button.id = id;
         this.id_list.push(button.id);
-        button.value = 0;
+        button.value = _value;
         button.textContent = _text;
+        if(_value !== 0) button.classList.add("selected");
         button.onclick = function(){
+            if(this.id !== "reset") this.classList.toggle("selected");
             this.value++;
         }
         this.menuContainer.appendChild(button);
     }
 
-    slider(id, _min, _max, _val){
+    slider(id, _min, _max, _val, _step){
         let sliderContainer = document.createElement("div");
         let slider = document.createElement("input");
         slider.id = String(id);
@@ -45,7 +47,7 @@ export default class GUI {
         slider.min = _min;
         slider.max = _max;
         slider.value = _val;
-        slider.step = 0.1;
+        slider.step = _step;
         this.menuContainer.appendChild(slider);
     }
 
