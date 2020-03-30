@@ -238,13 +238,14 @@ export default class Renderer{
             // let pointColour = new Vec3();
             // let normalColour = new Vec3();
             // let wireframeColour = new Vec3(0,255,0);;
-            for(let i=0; i<mesh.sorted_indices.length; i++){
+            let sorted_indices = mesh.sorted_indices; // !!! It's important to call mesh.sorted_indices onces per frame !!!
+            for(let i=0; i<sorted_indices.length; i++){
                 // Get face from sorted list
-                let face = mesh.faces[mesh.sorted_indices[i]];
+                let face = mesh.faces[sorted_indices[i]];
 
 
                 if(mesh.NORMS_ARE_CALCULATED){
-                    let norm = mesh.norms[mesh.sorted_indices[i]];
+                    let norm = mesh.norms[sorted_indices[i]];
                     let normalTransformMatrix = this._MVP.getAffineInverse();
                     normalTransformMatrix.transpose();
                     let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
@@ -252,19 +253,19 @@ export default class Renderer{
                     let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light)));
 
                     if(mesh.colour){
-                        this._faceColourArray[mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.x);
-                        this._faceColourArray[1+mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.y);
-                        this._faceColourArray[2+mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.z);
+                        this._faceColourArray[sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.x);
+                        this._faceColourArray[1+sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.y);
+                        this._faceColourArray[2+sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.z);
                     } else {
-                        this._faceColourArray[mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.x*255);
-                        this._faceColourArray[1+mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.y*255);
-                        this._faceColourArray[2+mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.z*255);
+                        this._faceColourArray[sorted_indices[i]*3] = Math.floor(transformedNormal.x*255);
+                        this._faceColourArray[1+sorted_indices[i]*3] = Math.floor(transformedNormal.y*255);
+                        this._faceColourArray[2+sorted_indices[i]*3] = Math.floor(transformedNormal.z*255);
                     }
 
                 } else {
-                    this._faceColourArray[mesh.sorted_indices[i]*3].x = Math.floor(xRange*255);
-                    this._faceColourArray[1+mesh.sorted_indices[i]*3].y = Math.floor(yRange*255);
-                    this._faceColourArray[2+mesh.sorted_indices[i]*3].z = Math.floor(zRange*255);
+                    this._faceColourArray[sorted_indices[i]*3].x = Math.floor(xRange*255);
+                    this._faceColourArray[1+sorted_indices[i]*3].y = Math.floor(yRange*255);
+                    this._faceColourArray[2+sorted_indices[i]*3].z = Math.floor(zRange*255);
                 }
 
                 // console.log(faceColourArray);
@@ -284,31 +285,31 @@ export default class Renderer{
                     // this.ctx.fillStyle="black";
                         xScreen = xRange * this.width;
                         yScreen = yRange * this.height;
-                        this._wireframePoints[j+mesh.sorted_indices[i]*3] = [xScreen, yScreen];
+                        this._wireframePoints[j+sorted_indices[i]*3] = [xScreen, yScreen];
                         // this.ctx.lineTo(xScreen, yScreen);
                     // Face -------------------------*---
 
                 }
                 // console.log(wireframePoints);
-                if(this.guiValues["face"]==1){
+                if(this.guiValues["face"]%2!==0){
                     // console.log(wireframePoints);
                     this.ctx.beginPath();
 
                     this.ctx.fillStyle="rgb("+
-                        this._faceColourArray[mesh.sorted_indices[i]*3]+","+
-                        this._faceColourArray[1+mesh.sorted_indices[i]*3]+","+
-                        this._faceColourArray[2+mesh.sorted_indices[i]*3]+")";
+                        this._faceColourArray[sorted_indices[i]*3]+","+
+                        this._faceColourArray[1+sorted_indices[i]*3]+","+
+                        this._faceColourArray[2+sorted_indices[i]*3]+")";
 
-                    this.ctx.lineTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
-                    this.ctx.lineTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
-                    this.ctx.lineTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[sorted_indices[i]*3][0], this._wireframePoints[sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[1+sorted_indices[i]*3][0], this._wireframePoints[1+sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[2+sorted_indices[i]*3][0], this._wireframePoints[2+sorted_indices[i]*3][1]);
                     this.ctx.closePath();
                     this.ctx.fill();
                     // this.ctx.moveTo(wireframePoints[wireframePoints.length-1][0], wireframePoints[wireframePoints.length-1][1]);
                 }
 
                 // Wireframe --------------------**--
-                if(this.guiValues["wireframe"]==1){
+                if(this.guiValues["wireframe"]%2!==0){
                     this.ctx.lineCap = "round";
                     this.ctx.lineWidth = 2;
                     // if(dir > 0.5){
@@ -318,31 +319,31 @@ export default class Renderer{
                     // }
                     this.ctx.strokeStyle = "black";
                     this.ctx.beginPath();
-                    this.ctx.moveTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
-                    this.ctx.lineTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.moveTo(this._wireframePoints[sorted_indices[i]*3][0], this._wireframePoints[sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[1+sorted_indices[i]*3][0], this._wireframePoints[1+sorted_indices[i]*3][1]);
                     this.ctx.stroke();
                     this.ctx.beginPath();
-                    this.ctx.moveTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
-                    this.ctx.lineTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.moveTo(this._wireframePoints[1+sorted_indices[i]*3][0], this._wireframePoints[1+sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[2+sorted_indices[i]*3][0], this._wireframePoints[2+sorted_indices[i]*3][1]);
                     this.ctx.stroke();
                     this.ctx.beginPath();
-                    this.ctx.moveTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
-                    this.ctx.lineTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
+                    this.ctx.moveTo(this._wireframePoints[2+sorted_indices[i]*3][0], this._wireframePoints[2+sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[sorted_indices[i]*3][0], this._wireframePoints[sorted_indices[i]*3][1]);
                     this.ctx.stroke();
                     // Wireframe --------------------**--
                 }
 
                 // Centroid Numbers -------------**--
                 // if(this.guiValues["numbers"]%2!==0){
-                    // // let centroid = mesh.centroids[mesh.sorted_indices[i]].getCopy();
-                    // let centroid = this._MVP.getMultiplyVec(mesh.centroids[mesh.sorted_indices[i]]);
+                    // // let centroid = mesh.centroids[sorted_indices[i]].getCopy();
+                    // let centroid = this._MVP.getMultiplyVec(mesh.centroids[sorted_indices[i]]);
                     // // let z =p.w;
                     // centroid.NDC();
                     // xScreen = ((centroid.x + 1)*0.5) * this.width;
                     // yScreen = (1-(centroid.y + 1)*0.5) * this.height;
                     // this.ctx.fillStyle = "black";
                     // this.ctx.font = String(Math.floor(zRange * 10) + "px Roboto Mono");
-                    // this.ctx.fillText(mesh.sorted_indices[i], xScreen, yScreen);
+                    // this.ctx.fillText(sorted_indices[i], xScreen, yScreen);
                     // // Centroid Numbers -------------**--
 //
                 // }
