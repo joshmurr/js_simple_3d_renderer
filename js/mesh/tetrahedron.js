@@ -11,10 +11,10 @@ export default class Tetrahedron extends Mesh{
             [1,2,3]
         ];
         this.verts = [
-            new Vec4(1, 1, 1,1),
-            new Vec4(1, -1, -1,1),
-            new Vec4(-1, 1, -1,1),
-            new Vec4(-1, -1, 1,1),
+            new Vec4( 1,  1,  1, 1),
+            new Vec4( 1, -1, -1, 1),
+            new Vec4(-1,  1, -1, 1),
+            new Vec4(-1, -1,  1, 1),
         ];
     }
 }

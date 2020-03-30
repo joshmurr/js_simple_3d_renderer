@@ -7,7 +7,8 @@ export default class Mesh{
     _faces = [];
     _indices_sorted = [];
     _norms = [];
-    _NORMS_ARE_CALCULATED = false;
+    _centroids = [];
+    NORMS_ARE_CALCULATED = false;
     _colour = null;
 
     constructor(){
@@ -23,24 +24,42 @@ export default class Mesh{
         this._colour = new Vec3(v.x,v.y,v.z);
     }
 
-    get verts(){
-        return this._verts;
-    }
-
-    get faces(){
-        return this._faces;
-    }
-
     set verts(v){
         for(let i=0; i<v.length; i++){
             this._verts[i] = v[i];
         }
     }
+    get verts(){
+        return this._verts;
+    }
+
     set faces(f){
         for(let i=0; i<f.length; i++){
             this._faces[i] = f[i];
         }
     }
+    get faces(){
+        return this._faces;
+    }
+
+    set centroids(c){
+        for(let i=0; i<c.length; i++){
+            this._centroids[i] = f[i];
+        }
+    }
+    get centroids(){
+        return this._centroids;
+    }
+
+    get meshCentroid(){
+        let sum = new Vec4(0,0,0,0);
+        for(let i=0; i<this._centroids.length; i++){
+            sum.add(this._centroids[i]);
+        }
+        sum.divide(this._centroids.length);
+        return sum;
+    }
+
 
     set sorted_indices(_sorted_array){
         for(let i=0; i<_sorted_array.length; i++){
@@ -77,6 +96,8 @@ export default class Mesh{
                 sum.add(p);
             }
             sum.divide(face.length);
+            // Store centroid
+            this._centroids.push(sum);
             // Store INDEX in map
             faces_unordered.set(sum.z, i);
         }

@@ -40,8 +40,10 @@ gui.title("3D Engine");
 gui.title("Model");
 gui.title("Drawing Style");
 gui.button("points", "Points", 0);
-gui.button("wireframe", "Wireframe", 0);
-gui.button("faces", "Faces", 1);
+gui.button("wireframe", "Wireframe", 1);
+gui.button("faces", "Faces", 0);
+gui.button("numbers", "Numbers", 0);
+gui.button("main", "Main", 1);
 gui.title("Translation");
 gui.slider("xTrans",-9,10, 0, 0.1);
 gui.slider("yTrans",-9,10, 0, 0.1);
@@ -64,6 +66,7 @@ light.normalize();
 let scene = new Scene(meshes, camera, light, gui.getIdList());
 
 let renderer = new Renderer(scene);
+renderer.setup();
 
 octahedron.computeFaceNormals();
 octahedron.colour = new Vec3(30, 130, 250);

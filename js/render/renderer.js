@@ -10,7 +10,12 @@ export default class Renderer{
     counter = 0;
     guiValues = {};
     guiValuesRESET = {};
-
+    _projectionMat = null;
+    _viewMat = null;
+    _MVP = null;
+    _faceColourArray = null;
+    _wireframePoints = null;
+    _transformedVerts = [];
     constructor(scene, _width, _height){
         // this.guiValues = {};
         this.scene = scene;
@@ -160,23 +165,23 @@ export default class Renderer{
         // Renders without calculating view or perspective matrices.
         // Assumes Mesh is at origin.
         // Calculates perspective based on -z value.
-        for(let i=0; i<this.scene.mesh.verts.length; i++){
-            let v = this.scene.mesh.verts[i].getCopy();;
-
-            v.z -= 2;
-
-            v = v.getNDC();
-            v.multiply(100);
-
-            let xNorm = (v.x + (this.width/2)) / this.width;
-            let yNorm = (v.y + (this.height/2)) / this.height;
-            let xScreen = xNorm * this.width;
-            let yScreen = yNorm * this.height;
-            // console.log([xScreen, yScreen]);
-
-            this.ctx.fillStyle="black";
-            this.ctx.fillRect(xScreen, yScreen, 2, 2);
-        }
+        // for(let i=0; i<this.scene.meshes.verts.length; i++){
+            // let v = this.scene.mesh.verts[i].getCopy();;
+//
+            // v.z -= 2;
+//
+            // v = v.getNDC();
+            // v.multiply(100);
+//
+            // let xNorm = (v.x + (this.width/2)) / this.width;
+            // let yNorm = (v.y + (this.height/2)) / this.height;
+            // let xScreen = xNorm * this.width;
+            // let yScreen = yNorm * this.height;
+            // // console.log([xScreen, yScreen]);
+//
+            // this.ctx.fillStyle="black";
+            // this.ctx.fillRect(xScreen, yScreen, 2, 2);
+        // }
 
     }
 
@@ -188,174 +193,187 @@ export default class Renderer{
         return projMat;
     }
 
-    render(){
-        let projectionMat = this.createOpenGLPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 100);
+    setup(){
+        this._projectionMat = this.createOpenGLPerspectiveProjectionMatrix(90, this.width/this.height, 0.1, 100);
         // let projectionMat = this.createOpenGLOrthographicProjectionMatrix(90, this.width/this.height, 0.1, 100);
-        let viewMat = this.createViewMatrix(this.scene.camera);
+        this._viewMat = this.createViewMatrix(this.scene.camera);
 
-        let mesh = this.scene.mesh[this.guiValues["mesh"]];
+        this._MVP = new Mat44();
+        this._MVP.setIdentity();
+        let maxArraySize = this.scene.biggestMeshSize*3;
+        this._faceColourArray = new Array(maxArraySize); // Number of indices * 3 for RGB
+        this._wireframePoints =  new Array(maxArraySize); // Number of indices * 3 for P0 P1 P2
+    }
 
-        let MVP = new Mat44();
-        MVP.setIdentity();
-        MVP.multiplyMat(projectionMat);
-        MVP.multiplyMat(viewMat);
-        MVP.multiplyMat(mesh.getModelMatrix(this.guiValues));
 
+
+    render(){
+        let mesh = this.scene.meshes[this.guiValues["mesh"]];
+        this._MVP.multiplyMat(this._projectionMat);
+        this._MVP.multiplyMat(this._viewMat);
+        this._MVP.multiplyMat(mesh.getModelMatrix(this.guiValues));
+
+        // Background ----------------------------------
         this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
         this.ctx.fillRect(0, 0, this.width, this.height);
+        // ---------------------------------------------
+
+        let xScreen, yScreen;
+        let xRange, yRange, zRange;
+        let xColour, yColour, zColour;
+        let dir;
 
         // RENDER: --------------------------------------------------------
-        // FACES ----------------------------------------------------------
-        if(this.guiValues["faces"]%2!==0){
-            for(let i=0; i<mesh.sorted_indices.length; i++){
-                let face = mesh.faces[mesh.sorted_indices[i]];
-                this.ctx.beginPath();
-                let xScreen, yScreen;
-                for(let j=0; j<face.length; j++){
+        if(this.guiValues["main"]%2!==0){
+            // let meshCentroid = new Vec4(0,0,0,0);
+            // Transoform verts ---------------------------
+            for(let i=0; i<mesh.verts.length; i++){
+                // let v = mesh.verts[i].getCopy();
+                let v = this._MVP.getMultiplyVec(mesh.verts[i]);
+                this._transformedVerts[i] = v;
+            }
+            // --------------------------------------------
 
-                    let v = mesh.verts[face[j]].getCopy();
-                    let p = MVP.getMultiplyVec(v);
+            // let faceColour = new Vec3();
+            // let pointColour = new Vec3();
+            // let normalColour = new Vec3();
+            // let wireframeColour = new Vec3(0,255,0);;
+            for(let i=0; i<mesh.sorted_indices.length; i++){
+                // Get face from sorted list
+                let face = mesh.faces[mesh.sorted_indices[i]];
+
+
+                if(mesh.NORMS_ARE_CALCULATED){
+                    let norm = mesh.norms[mesh.sorted_indices[i]];
+                    let normalTransformMatrix = this._MVP.getAffineInverse();
+                    normalTransformMatrix.transpose();
+                    let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
+                    dir = transformedNormal.dot(new Vec4(0,0,-1000)); // Dot with vec way behind mesh
+                    let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light)));
+
+                    if(mesh.colour){
+                        this._faceColourArray[mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.x);
+                        this._faceColourArray[1+mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.y);
+                        this._faceColourArray[2+mesh.sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.z);
+                    } else {
+                        this._faceColourArray[mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.x*255);
+                        this._faceColourArray[1+mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.y*255);
+                        this._faceColourArray[2+mesh.sorted_indices[i]*3] = Math.floor(transformedNormal.z*255);
+                    }
+
+                } else {
+                    this._faceColourArray[mesh.sorted_indices[i]*3].x = Math.floor(xRange*255);
+                    this._faceColourArray[1+mesh.sorted_indices[i]*3].y = Math.floor(yRange*255);
+                    this._faceColourArray[2+mesh.sorted_indices[i]*3].z = Math.floor(zRange*255);
+                }
+
+                // console.log(faceColourArray);
+
+                for(let j=0; j<face.length; j++){
+                    // Get vert and apply MVP transformation
+                    let v = this._transformedVerts[face[j]];
+                    // v = MVP.getMultiplyVec(v);
+                    v.NDC();
+
+                    xRange = (v.x + 1) * 0.5;
+                    yRange = 1-(v.y + 1) * 0.5;
+                    zRange  = (v.z + 1)*0.5;
+
+
+                    // Face -------------------------*---
+                    // this.ctx.fillStyle="black";
+                        xScreen = xRange * this.width;
+                        yScreen = yRange * this.height;
+                        this._wireframePoints[j+mesh.sorted_indices[i]*3] = [xScreen, yScreen];
+                        // this.ctx.lineTo(xScreen, yScreen);
+                    // Face -------------------------*---
+
+                }
+                // console.log(wireframePoints);
+                if(this.guiValues["face"]==1){
+                    // console.log(wireframePoints);
+                    this.ctx.beginPath();
+
+                    this.ctx.fillStyle="rgb("+
+                        this._faceColourArray[mesh.sorted_indices[i]*3]+","+
+                        this._faceColourArray[1+mesh.sorted_indices[i]*3]+","+
+                        this._faceColourArray[2+mesh.sorted_indices[i]*3]+")";
+
+                    this.ctx.lineTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    // this.ctx.moveTo(wireframePoints[wireframePoints.length-1][0], wireframePoints[wireframePoints.length-1][1]);
+                }
+
+                // Wireframe --------------------**--
+                if(this.guiValues["wireframe"]==1){
+                    this.ctx.lineCap = "round";
+                    this.ctx.lineWidth = 2;
+                    // if(dir > 0.5){
+                        // this.ctx.strokeStyle = "rgba("+normalColour.x+","+normalColour.y+","+normalColour.z+",0.5)";
+                    // } else {
+                        // this.ctx.strokeStyle = "rgb("+normalColour.x+","+normalColour.y+","+normalColour.z+")";
+                    // }
+                    this.ctx.strokeStyle = "black";
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.stroke();
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this._wireframePoints[1+mesh.sorted_indices[i]*3][0], this._wireframePoints[1+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.stroke();
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this._wireframePoints[2+mesh.sorted_indices[i]*3][0], this._wireframePoints[2+mesh.sorted_indices[i]*3][1]);
+                    this.ctx.lineTo(this._wireframePoints[mesh.sorted_indices[i]*3][0], this._wireframePoints[mesh.sorted_indices[i]*3][1]);
+                    this.ctx.stroke();
+                    // Wireframe --------------------**--
+                }
+
+                // Centroid Numbers -------------**--
+                // if(this.guiValues["numbers"]%2!==0){
+                    // // let centroid = mesh.centroids[mesh.sorted_indices[i]].getCopy();
+                    // let centroid = this._MVP.getMultiplyVec(mesh.centroids[mesh.sorted_indices[i]]);
+                    // // let z =p.w;
+                    // centroid.NDC();
+                    // xScreen = ((centroid.x + 1)*0.5) * this.width;
+                    // yScreen = (1-(centroid.y + 1)*0.5) * this.height;
+                    // this.ctx.fillStyle = "black";
+                    // this.ctx.font = String(Math.floor(zRange * 10) + "px Roboto Mono");
+                    // this.ctx.fillText(mesh.sorted_indices[i], xScreen, yScreen);
+                    // // Centroid Numbers -------------**--
+//
+                // }
+            }
+            // VERT-BY-VERT RENDERING ------------------------------------*---
+            // Points -----------------------*---
+            if(this.guiValues["points"]%2!==0){
+                for(let i=0; i<this._transformedVerts.length; i++){
+                    // Get centroid
+
+                    let p = this._transformedVerts[i];
                     let z = p.w;
                     p.NDC();
 
+                    let zRange  = (p.z + 1)*0.5;
+                    this.ctx.fillStyle="rgb("+p*255+","+p*255+","+p*255+")";
                     if(z > 0){
                         xScreen = ((p.x + 1)*0.5) * this.width;
                         yScreen = (1-(p.y + 1)*0.5) * this.height;
-                        this.ctx.lineTo(xScreen, yScreen);
-                    }
-
-                    
-                    if(mesh.NORMS_ARE_CALCULATED){
-                        let norm = mesh.norms[mesh.sorted_indices[i]];
-                        let normalTransformMatrix = MVP.getAffineInverse();
-                        normalTransformMatrix.transpose();
-                        let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
-                        let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light))); 
-                        if(mesh.colour){
-                            this.ctx.fillStyle="rgb("+Math.floor(diffuse*mesh.colour.x)+","+Math.floor(diffuse*mesh.colour.y)+","+Math.floor(diffuse*mesh.colour.z)+")";
-                        } else {
-                            this.ctx.fillStyle="rgb("+Math.floor(transformedNormal.x*255)+","+Math.floor(transformedNormal.y*255)+","+Math.floor(transformedNormal.z*255)+")";
-                        }
-                    } else {
                         this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
+                        this.ctx.beginPath();
+                        this.ctx.arc(xScreen, yScreen, 16/z, 0, Math.PI*2);
+                        this.ctx.closePath();
+                        this.ctx.fill();
                     }
-                    
-
-                }
-                this.ctx.closePath();
-                this.ctx.fill();
-            }
-        }
-
-        // WIREFRAME ------------------------------------------------------
-        if(this.guiValues["wireframe"]%2!==0){
-            // Draws point-to-point rather than creating a polygon perface,
-            // as the latter results in sharp ugly corners.
-            for(let i=0; i<mesh.sorted_indices.length; i++){
-                let face = mesh.faces[mesh.sorted_indices[i]];
-
-                let xRange, yRange, zRange;
-                let xScreen, yScreen;
-                let xColour, yColour, zColour;
-                let finalColour;
-                let xPrev, yPrev;
-
-                for(let j=0; j<face.length; j++){
-                    let v = mesh.verts[face[j]].getCopy();
-                    let p = MVP.getMultiplyVec(v);
-                    let z = p.w;
-                    p.NDC();
-
-                    if(z > 0){
-                        xRange  = (p.x + 1)*0.5;
-                        yRange  = 1-(p.y + 1)*0.5;
-                        zRange  = (p.z + 1)*0.5;
-                        xScreen = Math.round(((xRange * this.width)*2)/2);
-                        yScreen = Math.round(((yRange * this.height)*2)/2);
-                        xColour = Math.floor(xRange * 255);
-                        yColour = Math.floor(yRange * 255);
-                        zColour = Math.floor(zRange * 255);
-
-                            if(mesh.NORMS_ARE_CALCULATED){
-                                let norm = mesh.norms[mesh.sorted_indices[i]];
-                                let normalTransformMatrix = MVP.getAffineInverse();
-                                normalTransformMatrix.transpose();
-                                let transformedNormal = normalTransformMatrix.getMultiplyVec(norm);
-                                if(transformedNormal.dot(new Vec4(0,0,-1000)) > 0.5){
-                                    finalColour = "rgba("+xColour+","+yColour+","+zColour+",0.5)";
-                                } else {
-                                    finalColour = "rgb("+xColour+","+yColour+","+zColour+")";
-                                }
-                            } else {
-                                finalColour = "rgb("+xColour+","+yColour+","+zColour+")";
-                            }
-
-                        if(xPrev && yPrev) {
-                            // IF PREV POINT
-                            this.ctx.beginPath();
-                            this.ctx.strokeStyle=finalColour;
-                            this.ctx.lineCap = "round";
-                            this.ctx.lineWidth = zRange * 2;
-                            this.ctx.moveTo(xPrev, yPrev);
-                            this.ctx.lineTo(xScreen, yScreen);
-                            this.ctx.stroke();
-                        }
-                    }
-                    xPrev = xScreen;
-                    yPrev = yScreen;
                 }
             }
+            // Points -----------------------*---
+            // VERT-BY-VERT RENDERING ------------------------------------*---
         }
-        // POINTS ---------------------------------------------------------
-        if(this.guiValues["points"]%2!==0){
-            let loopLen = mesh.verts.length;
 
-            for(let i=0; i<loopLen; i++){
-                let v = mesh.verts[i].getCopy();
-                let p = MVP.getMultiplyVec(v);
-                let z = p.w;
-                p.NDC();
-
-                if(z > 0){
-                    let xScreen = ((p.x + 1)*0.5) * this.width;
-                    let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                    this.ctx.beginPath();
-                    this.ctx.arc(xScreen, yScreen, 16/z, 0, Math.PI*2);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                    // this.ctx.fillRect(xScreen, yScreen, 32/(z),32/(z));
-                }
-            }
-        }
-        // WIREFRAME FOR TEAPOT2 OBJ FILE INDICES--------------------------
-        // else if(_style == "teapot2"){
-            // let loopLen = mesh.faces.length-42;
-//
-            // for(let i=0; i<loopLen; i+=3){
-                // this.ctx.beginPath();
-//
-                // for(let j=0; j<3; j++){
-                    // let face = mesh.faces[i+j];
-                    // let v = mesh.verts[face[0]].getCopy();
-                    // let p = MVP.getMultiplyVec(v);
-                    // let z = p.w;
-                    // p.NDC();
-//
-                    // if(z > 0){
-                        // let xScreen = ((p.x + 1)*0.5) * this.width;
-                        // let yScreen = (1-(p.y + 1)*0.5) * this.height;
-                        // this.ctx.strokeStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+","+Math.floor((1-(p.y + 1)*0.5) * 255)+","+Math.floor(z)+")";
-                        // this.ctx.lineWidth = 8/z;
-                        // this.ctx.lineTo(xScreen, yScreen);
-                        // // this.ctx.fill();
-                    // }
-                // }
-                // this.ctx.closePath();
-                // this.ctx.stroke();
-            // }
-//
-        // }
         // ----------------------------------------------------------------
         if(this.guiValues["reset"]){
             for(let guiElem in this.guiValues){
@@ -365,7 +383,7 @@ export default class Renderer{
                 }
             }
         }
-        MVP.setIdentity();
+        this._MVP.setIdentity();
         this.updateGUIValues();
         // this.counter+=0.01;
     }
