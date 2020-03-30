@@ -12,6 +12,8 @@ import Teapot from './js/mesh/teapot.js';
 import Tetrahedron from './js/mesh/tetrahedron.js';
 import Cube from './js/mesh/cube.js';
 import Torus from './js/mesh/torus.js';
+import Klein from './js/mesh/klein.js';
+import MobiusTube from './js/mesh/mobiusTube.js';
 
 let octahedron = new Octahedon();
 let icosahedron = new Icosahedron();
@@ -19,9 +21,15 @@ let tetrahedron = new Tetrahedron();
 let cube = new Cube();
 let teapot = new Teapot();
 let torus = new Torus(8, 8, 0, Math.PI*2, 0, Math.PI*2, 2, 1);
+let klein = new Klein(16, 32, 0, Math.PI*2, 0, Math.PI*2);
+let mobiusTube = new MobiusTube(16, 16, 0, Math.PI*2, 0, Math.PI*2, 1.5, 3);
 
-torus.createVerts();
-torus.createFaces();
+// torus.createVerts();
+// torus.createFaces();
+// klein.createVerts();
+// klein.createFaces();
+mobiusTube.createVerts();
+mobiusTube.createFaces();
 
 
 for(let i=0; i<teapot.verts.length; i++){
@@ -29,11 +37,13 @@ for(let i=0; i<teapot.verts.length; i++){
 }
 
 let meshes = {
+    "mobiustube": mobiusTube,
+    "klein": klein,
     "torus": torus,
-    "octahedron" : octahedron,
+    // "octahedron" : octahedron,
     "icosahedron": icosahedron,
-    "tetrahedron": tetrahedron,
-    "cube": cube,
+    // "tetrahedron": tetrahedron,
+    // "cube": cube,
     // "teapot2" : teapot2
 };
 
@@ -80,6 +90,7 @@ cube.computeFaceNormals();
 cube.colour = new Vec3(20, 255, 50);
 torus.computeFaceNormals();
 torus.colour = new Vec3(20, 20, 255);
+mobiusTube.computeFaceNormals();
 
 function draw(){
     // let time = new Date();

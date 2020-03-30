@@ -9,14 +9,13 @@ export default class Torus extends ParametricMesh {
         this._a = _a;
     }
 
-    createX(_u, _v){
-        let x = (this._c + this._a * Math.cos(_v))*Math.cos(_u);
-        return x;
+    createX(u, v){
+        return (this._c + this._a * Math.cos(v))*Math.cos(u);
     }
-    createY(_u, _v){
-        return (this._c + this._a * Math.cos(_v))*Math.sin(_u);
+    createY(u, v){
+        return (this._c + this._a * Math.cos(v))*Math.sin(u);
     }
-    createZ(_u, _v){
-        return this._a * Math.sin(_v);
+    createZ(u, v){
+        return this._a * Math.sin(v);
     }
 }
