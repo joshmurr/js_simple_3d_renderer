@@ -5,6 +5,7 @@ import Mat44 from '../math/mat44.js';
 export default class Mesh{
     _verts = [];
     _faces = [];
+    _indices = [];
     _indices_sorted = [];
     _norms = [];
     _centroids = [];
@@ -99,19 +100,18 @@ export default class Mesh{
             // Store centroid
             this._centroids.push(sum);
             // Store INDEX in map
-            faces_unordered.set(sum.z, i);
+            faces_unordered.set(i, sum.z);
         }
-
         // ORDER FACES BY CENTROID.Z ------------
         // Rather than making a new map, the sorted faces are stored in an array
         const sorted = [];
         function sort_faces_into_array(value, key, map){
-            sorted.push(map.get(key));
+            sorted.push(key);
         }
-        // An arrow function to sort the map by key
+        // An arrow function to sort the map by value (centroid.z)
         // Arrow functions are difficult to read
         // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
-        let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[0] - b[0]));
+        let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[1] - b[1]));
         // sort_faces_into_array is a callback function which takes (value, key, map).
         // I presume this is an automatic feature of a Map.
         faces_ordered.forEach(sort_faces_into_array);
@@ -164,51 +164,4 @@ export default class Mesh{
 
         return this.modelMatrix;
     }
-
-    /*
-    set sorted_faces(_sorted_array){
-        for(let i=0; i<_sorted_array.length; i++){
-            this.faces_sorted[i] = _sorted_array[i];
-        }
-    }
-
-    get sorted_faces(){
-        this.sortFacesByCentroid();
-        return this.faces_sorted;
-    }
-    sortFacesByCentroid(){
-        // Store the <centroid.z, face> map for later sorting
-        let faces_unordered = new Map();
-        for(let i=0; i<this.faces.length; i++){
-            let face = this.faces[i];
-
-            // COMPUTE CENTROID --------
-            let sum = new Vec4(0,0,0,0);
-            for(let j=0; j<face.length; j++){
-                let v = this.verts[face[j]].getCopy();
-                let p = this.modelMatrix.getMultiplyVec(v);
-                sum.add(p);
-            }
-            sum.divide(face.length);
-            // Store in map
-            faces_unordered.set(sum.z, face);
-        }
-
-        // ORDER FACES BY CENTROID.Z ------------
-        // Rather than making a new map, the sorted faces are stored in an array
-        const sorted = [];
-        function sort_faces_into_array(value, key, map){
-            sorted.push(map.get(key));
-        }
-        // An arrow function to sort the map by key
-        // Arrow functions are SO hard to read..
-        // https://stackoverflow.com/questions/37982476/how-to-sort-a-map-by-value-in-javascript
-        let faces_ordered = new Map([...faces_unordered.entries()].sort((a,b) => a[0] - b[0]));
-        // sort_faces_into_array is a callback function which takes (value, key, map)
-        // I presume automatically
-        faces_ordered.forEach(sort_faces_into_array);
-        // Faces are now sorted back to front!
-        this.sorted_faces = sorted;
-    }
-    */
 }

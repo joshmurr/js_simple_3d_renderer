@@ -11,26 +11,29 @@ import Icosahedron from './js/mesh/icosahedron.js';
 import Teapot from './js/mesh/teapot.js';
 import Tetrahedron from './js/mesh/tetrahedron.js';
 import Cube from './js/mesh/cube.js';
-// import Teapot2 from './js/mesh/teapot2.js';
-
+import Torus from './js/mesh/torus.js';
 
 let octahedron = new Octahedon();
 let icosahedron = new Icosahedron();
 let tetrahedron = new Tetrahedron();
 let cube = new Cube();
 let teapot = new Teapot();
-// let teapot2 = new Teapot2();
+let torus = new Torus(8, 8, 0, Math.PI*2, 0, Math.PI*2, 2, 1);
+
+torus.createVerts();
+torus.createFaces();
+
 
 for(let i=0; i<teapot.verts.length; i++){
     teapot.verts[i].y *= -1;
 }
 
 let meshes = {
+    "torus": torus,
     "octahedron" : octahedron,
     "icosahedron": icosahedron,
     "tetrahedron": tetrahedron,
     "cube": cube,
-    // "teapot" : teapot,
     // "teapot2" : teapot2
 };
 
@@ -39,11 +42,10 @@ gui.menu();
 gui.title("3D Engine");
 gui.title("Model");
 gui.title("Drawing Style");
-gui.button("points", "Points", 0);
-gui.button("wireframe", "Wireframe", 0);
-gui.button("face", "Faces", 1);
+gui.button("points", "Points", 1);
+gui.button("wireframe", "Wireframe", 1);
+gui.button("face", "Faces", 0);
 gui.button("numbers", "Numbers", 0);
-gui.button("main", "Main", 1);
 gui.title("Translation");
 gui.slider("xTrans",-9,10, 0, 0.1);
 gui.slider("yTrans",-9,10, 0, 0.1);
@@ -53,9 +55,9 @@ gui.slider("xRot",-Math.PI, Math.PI, 0, 0.1);
 gui.slider("yRot",-Math.PI, Math.PI, 0, 0.1);
 gui.slider("zRot",-Math.PI, Math.PI, 0, 0.1);
 gui.title("Scale");
-gui.slider("xScale",1, 4, 1.2, 1);
-gui.slider("yScale",1, 4, 1.2, 1);
-gui.slider("zScale",1, 4, 1.2, 1);
+gui.slider("xScale",0.2, 4, 1.2, 0.2);
+gui.slider("yScale",0.2, 4, 1.2, 0.2);
+gui.slider("zScale",0.2, 4, 1.2, 0.2);
 gui.button("reset", "Reset", 0);
 // Gnarly arrow function to capitalize first letter of mesh in meshes object.
 gui.dropdown("mesh", Object.keys(meshes).map(m => m.charAt(0).toUpperCase()+m.slice(1)));
@@ -71,11 +73,13 @@ renderer.setup();
 octahedron.computeFaceNormals();
 octahedron.colour = new Vec3(30, 130, 250);
 icosahedron.computeFaceNormals();
-icosahedron.colour = new Vec3(250, 100, 50);
+// icosahedron.colour = new Vec3(250, 100, 50);
 tetrahedron.computeFaceNormals();
 tetrahedron.colour = new Vec3(20, 255, 50);
 cube.computeFaceNormals();
 cube.colour = new Vec3(20, 255, 50);
+torus.computeFaceNormals();
+torus.colour = new Vec3(20, 20, 255);
 
 function draw(){
     // let time = new Date();
