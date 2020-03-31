@@ -24,10 +24,10 @@ let torus = new Torus(8, 8, 0, Math.PI*2, 0, Math.PI*2, 2, 1);
 let klein = new Klein(16, 32, 0, Math.PI*2, 0, Math.PI*2);
 let mobiusTube = new MobiusTube(16, 16, 0, Math.PI*2, 0, Math.PI*2, 1.5, 3);
 
-// torus.createVerts();
-// torus.createFaces();
-// klein.createVerts();
-// klein.createFaces();
+torus.createVerts();
+torus.createFaces();
+klein.createVerts();
+klein.createFaces();
 mobiusTube.createVerts();
 mobiusTube.createFaces();
 

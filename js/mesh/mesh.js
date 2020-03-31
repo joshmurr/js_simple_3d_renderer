@@ -92,8 +92,8 @@ export default class Mesh{
             // COMPUTE CENTROID --------
             let sum = new Vec4(0,0,0,0);
             for(let j=0; j<face.length; j++){
-                let v = this.verts[face[j]].getCopy();
-                let p = this.modelMatrix.getMultiplyVec(v);
+                // let v = this.verts[face[j]].getCopy();
+                let p = this.modelMatrix.getMultiplyVec(this.verts[face[j]]);
                 sum.add(p);
             }
             sum.divide(face.length);
@@ -104,7 +104,7 @@ export default class Mesh{
         }
         // ORDER FACES BY CENTROID.Z ------------
         // Rather than making a new map, the sorted faces are stored in an array
-        const sorted = [];
+        let sorted = [];
         function sort_faces_into_array(value, key, map){
             sorted.push(key);
         }
@@ -117,6 +117,10 @@ export default class Mesh{
         faces_ordered.forEach(sort_faces_into_array);
         // Faces are now sorted back to front!
         this.sorted_indices = sorted;
+        // Try and free some memory:
+        faces_ordered = null;
+        faces_unordered = null;
+        sorted = [];
     }
 
 
