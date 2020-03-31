@@ -209,7 +209,7 @@ export default class Renderer{
         //                        R G B
         //                        ...   ]
         this._faceColourArray = new Array(maxArraySize);
-        // wireframePoints = [ [X, Y], [X, Y], [X, Y], 
+        // wireframePoints = [ [X, Y], [X, Y], [X, Y],
         //                     [X, Y], [X, Y], [X, Y],
         //                     [X, Y], [X, Y], [X, Y],
         //                     ...                     ]
@@ -228,7 +228,7 @@ export default class Renderer{
         this._MVP.multiplyMat(mesh.getModelMatrix(this.guiValues));
 
         // Background ----------------------------------
-        this.ctx.fillStyle = "rgba(20, 20, 30, 0.8)";
+        this.ctx.fillStyle = "rgba(255, 240, 240, 0.8)";
         this.ctx.fillRect(0, 0, this.width, this.height);
         // ---------------------------------------------
 
@@ -287,7 +287,7 @@ export default class Renderer{
                 yRange = 1-(v.y + 1) * 0.5;
                 zRange  = (v.z + 1)*0.5;
                 // Store screen coords in an array ----------------------------------------
-                // This might not be the best way to do this, but I found it to be a way to 
+                // This might not be the best way to do this, but I found it to be a way to
                 // give the seperate rendering styles access to the same coordinates without
                 // re-calculating them. Storing it the 'old fashioned way':
                 //      **  ([rowIndex * numberOfColumns + columnIndex])  **
@@ -360,23 +360,24 @@ export default class Renderer{
         // VERT-BY-VERT RENDERING ------------------------------------*---
         // Points -----------------------*---
         if(this.guiValues["points"]%2!==0){
+            let meshCentroid = this._VP.getMultiplyVec(mesh.meshCentroid);
+            meshCentroid.NDC();
             for(let i=0; i<this._transformedVerts.length; i++){
                 // Get centroid
                 let p = this._transformedVerts[i];
-                let z = p.w;
+                // let z = p.w;
                 p.NDC();
-                if(z > 0){
-                    xRange = (p.x + 1)*0.5;
-                    yRange = 1-(p.y + 1)*0.5;
-                    zRange  = (p.z + 1)*0.5;
-                    xScreen = xRange * this.width;
-                    yScreen = yRange * this.height;
-                    this.ctx.fillStyle="rgb("+Math.floor(xRange * 255)+","+Math.floor(yRange*255)+","+Math.floor(zRange*255)+")";
-                    this.ctx.beginPath();
-                    this.ctx.arc(xScreen, yScreen, 2/z, 0, Math.PI*2);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                }
+                xRange = (p.x + 1)*0.5;
+                yRange = 1-(p.y + 1)*0.5;
+                zRange  = (p.z + 1)*0.5;
+                xScreen = xRange * this.width;
+                yScreen = yRange * this.height;
+                if(p.z < meshCentroid.z) this.ctx.fillStyle = "rgba(255,0,64,0.8)";
+                else this.ctx.fillStyle = "rgba(255,64,0,0.5)";
+                this.ctx.beginPath();
+                this.ctx.arc(xScreen, yScreen, 2*zRange, 0, Math.PI*2);
+                this.ctx.closePath();
+                this.ctx.fill();
             }
         }
         // Points -----------------------*---
@@ -456,5 +457,4 @@ export default class Renderer{
             }
         }
     }
-
 }

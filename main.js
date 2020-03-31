@@ -74,7 +74,7 @@ gui.menu();
 gui.title("3D Engine");
 gui.title("Model");
 gui.title("Drawing Style");
-gui.button("points", "Points", 0);
+gui.button("points", "Points", 1);
 gui.button("wireframe", "Wireframe", 1);
 gui.button("face", "Faces", 0);
 gui.button("numbers", "Numbers", 1);
