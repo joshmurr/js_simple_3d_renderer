@@ -221,7 +221,7 @@ export default class Renderer{
         let dir;
 
         // RENDER: --------------------------------------------------------
-        // Transoform verts ---------------------------
+        // Transform verts ----------------------------
         this._transformedVerts = []; // Clear to remove excess points from a larger shape
         for(let i=0; i<mesh.verts.length; i++){
             let v = this._MVP.getMultiplyVec(mesh.verts[i]);

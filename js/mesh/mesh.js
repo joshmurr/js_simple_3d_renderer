@@ -98,7 +98,7 @@ export default class Mesh{
             }
             sum.divide(face.length);
             // Store centroid
-            this._centroids.push(sum);
+            this._centroids[i] = sum;
             // Store INDEX in map
             faces_unordered.set(i, sum.z);
         }

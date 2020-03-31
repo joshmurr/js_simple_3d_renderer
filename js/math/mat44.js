@@ -250,39 +250,67 @@ export default class Mat44 extends Mat33{
         //    2  6 10 14      z
         //    3  7 11 15 ]    w ]
 
-
         let ret = new Vec3();
         ret.x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
         ret.y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
         ret.z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];
         let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
 
-        // console.group("V before W divide:");
-        // console.log(v.x);
-        // console.log(v.y);
-        // console.log(v.z);
-        // console.log(v.w);
-        // console.groupEnd();
-        //
-
-        // ret.w = w;
-
-        // ret.printProps();
         if(!Utils.areEqual(w, 1)){
             ret.x /= w;
             ret.y /= w;
             ret.z /= w;
-            // ret.w = 1;
         }
 
-        // console.group("V AFTER W divide:");
-        // console.log(ret.x);
-        // console.log(ret.y);
-        // console.log(ret.z);
-        // console.log(ret.w);
-        // console.groupEnd();
-
         return ret;
+    }
+    multiplyVec(v){
+        // COLUMN MAJOR - POST MULTIPLICATION
+        //
+        // [  0  4  8 12    [ x
+        //    1  5  9 13  .   y
+        //    2  6 10 14      z
+        //    3  7 11 15 ]    w ]
+
+        let x = this.M[0]*v.x + this.M[4]*v.y + this.M[8]*v.z + this.M[12];
+        let y = this.M[1]*v.x + this.M[5]*v.y + this.M[9]*v.z + this.M[13];
+        let z = this.M[2]*v.x + this.M[6]*v.y + this.M[10]*v.z + this.M[14];
+        let w = this.M[3]*v.x + this.M[7]*v.y + this.M[11]*v.z + this.M[15];
+
+        if(!Utils.areEqual(w, 1)){
+            x /= w;
+            y /= w;
+            z /= w;
+        }
+
+        v.x = x;
+        v.y = y;
+        v.z = z;
+        v.w = w;
+    }
+    multiplyVecIO(_in, _out){
+        // COLUMN MAJOR - POST MULTIPLICATION
+        //
+        // [  0  4  8 12    [ x
+        //    1  5  9 13  .   y
+        //    2  6 10 14      z
+        //    3  7 11 15 ]    w ]
+
+        let x = this.M[0]*_in.x + this.M[4]*_in.y + this.M[8]*_in.z + this.M[12];
+        let y = this.M[1]*_in.x + this.M[5]*_in.y + this.M[9]*_in.z + this.M[13];
+        let z = this.M[2]*_in.x + this.M[6]*_in.y + this.M[10]*_in.z + this.M[14];
+        let w = this.M[3]*_in.x + this.M[7]*_in.y + this.M[11]*_in.z + this.M[15];
+
+        if(!Utils.areEqual(w, 1)){
+            x /= w;
+            y /= w;
+            z /= w;
+        }
+
+        _out.x = x;
+        _out.y = y;
+        _out.z = z;
+        _out.w = w;
     }
 
     transformVec(v){
