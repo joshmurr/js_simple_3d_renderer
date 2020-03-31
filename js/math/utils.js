@@ -1,3 +1,4 @@
+import Vec3 from "./vec3.js";
 // ERRORS -----------------------------------
 var userException = function(message){
     this.message = message;
@@ -38,7 +39,14 @@ var round = function(val, epsilon=smallNum){
     if(1-val <= epsilon) return Math.round(val);
     else return val;
 }
-
+// ------------------------------------------
+// HELPER FUNCTIONS -------------------------
+var randomRGB = function(){
+    return "rgb("+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+")";
+}
+var randomVecRGB = function(){
+    return new Vec3(Math.floor(Math.random()*255),Math.floor(Math.random()*255),Math.floor(Math.random()*255));
+}
 // ------------------------------------------
 
-export { userException, smallNum, isZero, areEqual, checkLength, checkSize, round };
+export { userException, smallNum, isZero, areEqual, checkLength, checkSize, round, randomVecRGB };

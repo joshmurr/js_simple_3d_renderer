@@ -1,3 +1,4 @@
+import { randomVecRGB } from  '../math/utils.js'
 import Vec3 from '../math/vec3.js'
 import Vec4 from '../math/vec4.js'
 import Mat33 from '../math/mat33.js'
@@ -253,7 +254,10 @@ export default class Renderer{
 
 
             // Update Normals and calculate colours ---------------------------------------
-            if(mesh.NORMS_ARE_CALCULATED){
+            if(mesh.NORMS_ARE_CALCULATED && (this.guiValues["normals"]%2!==0 || this.guiValues["colour"]%2!==0)){
+                let faceButton = document.getElementById("face");
+                faceButton.value = 1;
+                faceButton.classList.toggle("selected", true);
                 let norm = mesh.norms[sorted_indices[i]];
                 let normalTransformMatrix = this._MVP.getAffineInverse();
                 normalTransformMatrix.transpose();
@@ -261,17 +265,20 @@ export default class Renderer{
                 dir = transformedNormal.dot(new Vec4(0,0,-1000)); // Dot with vec way behind mesh
                 let diffuse = Math.max(0, Math.abs(transformedNormal.dot(this.scene.light)));
 
-                if(mesh.colour){
+                if(mesh.colour && this.guiValues["colour"]%2!==0){
+                    // If mesh has a colour and colours are turned on and normals are on
                     this._faceColourArray[sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.x);
                     this._faceColourArray[1+sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.y);
                     this._faceColourArray[2+sorted_indices[i]*3] = Math.floor(diffuse*mesh.colour.z);
                 } else {
+                    // If mesh has a colour but colours are turned off
                     this._faceColourArray[sorted_indices[i]*3] = Math.floor(transformedNormal.x*255);
                     this._faceColourArray[1+sorted_indices[i]*3] = Math.floor(transformedNormal.y*255);
                     this._faceColourArray[2+sorted_indices[i]*3] = Math.floor(transformedNormal.z*255);
                 }
 
             } else {
+                // Mesh has no colour and normals are not calculated
                 this._faceColourArray[sorted_indices[i]*3] = Math.floor(xRange*255);
                 this._faceColourArray[1+sorted_indices[i]*3] = Math.floor(yRange*255);
                 this._faceColourArray[2+sorted_indices[i]*3] = Math.floor(zRange*255);
@@ -312,7 +319,7 @@ export default class Renderer{
                 }
                 this.ctx.closePath();
                 this.ctx.fill();
-            }
+            } 
             // Face -------------------------*---
 
             // Wireframe --------------------**--
@@ -449,6 +456,15 @@ export default class Renderer{
                 let ele = document.getElementById(guiElem);
                 if(ele.type == "submit") {
                     this.guiValues[guiElem] = parseInt(ele.value);
+                    if(ele.id == "resetColours" && this.guiValues[guiElem]%2!==0){
+                        for(let mesh in this.scene.meshes){
+                            if(this.scene.meshes.hasOwnProperty(mesh)){
+                                this.scene.meshes[mesh].colour = randomVecRGB();
+                                ele.classList.toggle("selected", false);
+                                ele.value = 0;
+                            }
+                        }
+                    }
                 }
                 if(ele.type == "range") this.guiValues[guiElem] = parseFloat(ele.value);
                 if(ele.type == "select-one"){
