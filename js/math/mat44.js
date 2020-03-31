@@ -474,6 +474,11 @@ export default class Mat44 extends Mat33{
         return ret;
     }
 
+    copy(_toCopyM){
+        // Copies _toCopyM into this.M
+        this.setMat([..._toCopyM.M]);
+    }
+
     rotateX(theta){
         this.M[0] = 1;
         this.M[5] = Math.cos(theta);

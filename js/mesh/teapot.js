@@ -4,7 +4,9 @@ import Mesh from './mesh.js';
 export default class Teapot extends Mesh{
     constructor(){
         super();
+
         this.faces = [
+
         ];
 
         this.verts = [

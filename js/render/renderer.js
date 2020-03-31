@@ -196,23 +196,39 @@ export default class Renderer{
         // let projectionMat = this.createOpenGLOrthographicProjectionMatrix(90, this.width/this.height, 0.1, 100);
         this._viewMat = this.createViewMatrix(this.scene.camera);
 
+        // ModelViewProjection
         this._MVP = new Mat44();
         this._MVP.setIdentity();
+
+        // ViewProjection (for drawing centroid numbers)
+        this._VP = new Mat44();
+
         let maxArraySize = this.scene.biggestMeshSize*3;
-        this._faceColourArray = new Array(maxArraySize); // Number of indices * 3 for RGB
+        // faceColourArray = // [ R G B
+        //                        R G B
+        //                        R G B
+        //                        ...   ]
+        this._faceColourArray = new Array(maxArraySize);
+        // wireframePoints = [ [X, Y], [X, Y], [X, Y], 
+        //                     [X, Y], [X, Y], [X, Y],
+        //                     [X, Y], [X, Y], [X, Y],
+        //                     ...                     ]
         this._wireframePoints =  new Array(maxArraySize); // Number of indices * 3 for P0 P1 P2
     }
 
 
 
     render(){
+        // console.log(this.scene.meshes[this.guiValues["mesh"]]);
         let mesh = this.scene.meshes[this.guiValues["mesh"]];
+        // I don't know why I need to update these every frame, but it doesn't work if I dont...
         this._MVP.multiplyMat(this._projectionMat);
         this._MVP.multiplyMat(this._viewMat);
+        this._VP.copy(this._MVP); // ViewProjection
         this._MVP.multiplyMat(mesh.getModelMatrix(this.guiValues));
 
         // Background ----------------------------------
-        this.ctx.fillStyle = "rgba(255, 230, 230, 0.5)";
+        this.ctx.fillStyle = "rgba(20, 20, 30, 0.8)";
         this.ctx.fillRect(0, 0, this.width, this.height);
         // ---------------------------------------------
 
@@ -270,14 +286,19 @@ export default class Renderer{
                 xRange = (v.x + 1) * 0.5;
                 yRange = 1-(v.y + 1) * 0.5;
                 zRange  = (v.z + 1)*0.5;
-
-                // Face -------------------------*---
+                // Store screen coords in an array ----------------------------------------
+                // This might not be the best way to do this, but I found it to be a way to 
+                // give the seperate rendering styles access to the same coordinates without
+                // re-calculating them. Storing it the 'old fashioned way':
+                //      **  ([rowIndex * numberOfColumns + columnIndex])  **
+                // means writing directly over the same memory every frame so it should be
+                // quicker. I'm assuming Javascript works like this any way.
                 xScreen = xRange * this.width;
                 yScreen = yRange * this.height;
                 this._wireframePoints[j+sorted_indices[i]*3] = [xScreen, yScreen];
-                // Face -------------------------*---
 
             }
+            // Face -------------------------*---
             if(this.guiValues["face"]%2!==0){
                 this.ctx.beginPath();
 
@@ -288,12 +309,11 @@ export default class Renderer{
 
                 for(let j=0; j<face.length; j++){
                     this.ctx.lineTo(this._wireframePoints[j+sorted_indices[i]*3][0], this._wireframePoints[j+sorted_indices[i]*3][1]);
-                    // this.ctx.lineTo(this._wireframePoints[1+sorted_indices[i]*3][0], this._wireframePoints[1+sorted_indices[i]*3][1]);
-                    // this.ctx.lineTo(this._wireframePoints[2+sorted_indices[i]*3][0], this._wireframePoints[2+sorted_indices[i]*3][1]);
                 }
                 this.ctx.closePath();
                 this.ctx.fill();
             }
+            // Face -------------------------*---
 
             // Wireframe --------------------**--
             if(this.guiValues["wireframe"]%2!==0){
@@ -316,43 +336,44 @@ export default class Renderer{
                         this.ctx.lineTo(this._wireframePoints[j+1+sorted_indices[i]*3][0], this._wireframePoints[j+1+sorted_indices[i]*3][1]);
                         this.ctx.stroke();
                     }
-                    // this.ctx.lineTo(this._wireframePoints[j+sorted_indices[i]*3][0], this._wireframePoints[j+sorted_indices[i]*3][1]);
                 }
                 // Wireframe --------------------**--
             }
 
             // Centroid Numbers -------------**--
             if(this.guiValues["numbers"]%2!==0){
-                // let centroid = mesh.centroids[sorted_indices[i]].getCopy();
-                let centroid = this._MVP.getMultiplyVec(mesh.centroids[sorted_indices[i]]);
-                // let z =p.w;
+                // Only multiply by the ViewProjection matrix as the centroid already to the model
+                // matrix manipulation applied.
+                let centroid = this._VP.getMultiplyVec(mesh.centroids[sorted_indices[i]]);
                 centroid.NDC();
-                xScreen = ((centroid.x + 1)*0.5) * this.width;
-                yScreen = (1-(centroid.y + 1)*0.5) * this.height;
-                this.ctx.fillStyle = "black";
-                this.ctx.font = String(Math.floor(zRange * 10) + "px Roboto Mono");
+                xRange = (centroid.x + 1)*0.5;
+                yRange = 1-(centroid.y + 1)*0.5;
+                zRange = (centroid.z + 1)*0.5;
+                xScreen = xRange * this.width;
+                yScreen = yRange * this.height;
+                this.ctx.fillStyle="rgb("+Math.floor(xRange*128)+127+","+Math.floor(yRange*128)+127+","+Math.floor(zRange*128)+127+")";
+                this.ctx.font = String(Math.floor(zRange * 5) + "px Roboto Mono");
                 this.ctx.fillText(sorted_indices[i], xScreen, yScreen);
-                // Centroid Numbers -------------**--
-
             }
+            // Centroid Numbers -------------**--
         }
         // VERT-BY-VERT RENDERING ------------------------------------*---
         // Points -----------------------*---
         if(this.guiValues["points"]%2!==0){
             for(let i=0; i<this._transformedVerts.length; i++){
                 // Get centroid
-
                 let p = this._transformedVerts[i];
                 let z = p.w;
                 p.NDC();
-
-                let zRange  = (p.z + 1)*0.5;
                 if(z > 0){
-                    xScreen = ((p.x + 1)*0.5) * this.width;
-                    yScreen = (1-(p.y + 1)*0.5) * this.height;
-                    this.ctx.fillStyle="rgb("+Math.floor(((p.x + 1)*0.5) * 255)+",0,0)";
+                    xRange = (p.x + 1)*0.5;
+                    yRange = 1-(p.y + 1)*0.5;
+                    zRange  = (p.z + 1)*0.5;
+                    xScreen = xRange * this.width;
+                    yScreen = yRange * this.height;
+                    this.ctx.fillStyle="rgb("+Math.floor(xRange * 255)+","+Math.floor(yRange*255)+","+Math.floor(zRange*255)+")";
                     this.ctx.beginPath();
-                    this.ctx.arc(xScreen, yScreen, 3/z, 0, Math.PI*2);
+                    this.ctx.arc(xScreen, yScreen, 2/z, 0, Math.PI*2);
                     this.ctx.closePath();
                     this.ctx.fill();
                 }

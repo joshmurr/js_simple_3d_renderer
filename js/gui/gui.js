@@ -67,12 +67,15 @@ export default class GUI {
         for(let i=0; i<args.length; i++){
             let option = document.createElement("option");
             option.textContent = args[i];
-            option.value = args[i].toLowerCase();
+            // option.value = this.cleanArg(args[i]);
             if(!i) option.selected = "selected";
             dropdown.appendChild(option);
         }
         this.menuContainer.appendChild(dropdown);
+    }
 
+    cleanArg(_arg){
+        return _arg.toLowerCase().replace(/ /g,'');
     }
 
 }

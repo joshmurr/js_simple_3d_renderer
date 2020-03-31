@@ -45,7 +45,7 @@ export default class Mesh{
 
     set centroids(c){
         for(let i=0; i<c.length; i++){
-            this._centroids[i] = f[i];
+            this._centroids[i] = c[i];
         }
     }
     get centroids(){
@@ -92,7 +92,6 @@ export default class Mesh{
             // COMPUTE CENTROID --------
             let sum = new Vec4(0,0,0,0);
             for(let j=0; j<face.length; j++){
-                // let v = this.verts[face[j]].getCopy();
                 let p = this.modelMatrix.getMultiplyVec(this.verts[face[j]]);
                 sum.add(p);
             }
