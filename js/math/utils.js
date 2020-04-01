@@ -1,4 +1,4 @@
-import Vec3 from "./vec3.js";
+import { Vec3 } from "./math.js";
 // ERRORS -----------------------------------
 var userException = function(message){
     this.message = message;

@@ -1,7 +1,7 @@
 import * as Utils from './utils.js';
-import Vec3 from './vec3.js';
+import { Vec3 } from './math.js';
 
-export default class Mat33{
+export class Mat33{
 
     /*
      * mV[9]

@@ -1,7 +1,7 @@
 import * as Utils from './utils.js';
-import Vec3 from './vec3.js';
+import { Vec3 } from './math.js';
 
-export default class Vec4 extends Vec3{
+export class Vec4 extends Vec3{
 
     /*
      * Length : float

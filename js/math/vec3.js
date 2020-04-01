@@ -1,6 +1,6 @@
 import * as Utils from './utils.js';
 
-export default class Vec3{
+export class Vec3{
 
     /*
      * Length : float
