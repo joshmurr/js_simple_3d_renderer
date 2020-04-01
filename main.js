@@ -1,13 +1,14 @@
-import { randomVecRGB } from './js/math/utils.js';
-import GUI from './js/gui/gui.js';
-import Vec3 from './js/math/vec3.js';
+import { randomVecRGB } from './js_3d_engine/js/math/utils.js';
+import { Vec3 } from './js_3d_engine/js/math/math.js';
 
-import Renderer from './js/render/renderer.js';
-import Scene from './js/scene/scene.js';
+import GUI from './js_3d_engine/js/gui/gui.js';
 
-import { Torus, KleinBottle, MobiusTube, SineSurface, EightSurface, HyperbolicOctahedron, CrossCap, BohemianDome } from './js/mesh/parametricSolid.js';
-import { Icosahedron, Cube, Tetrahedron, Octahedron } from './js/mesh/platonicSolids.js';
-import { Teapot2 } from './js/mesh/miscSolid.js';
+import Renderer from './js_3d_engine/js/render/renderer.js';
+import Scene from './js_3d_engine/js/scene/scene.js';
+
+import { Torus, KleinBottle, MobiusTube, SineSurface, EightSurface, HyperbolicOctahedron, CrossCap, BohemianDome } from './js_3d_engine/js/mesh/parametricSolid.js';
+import { Icosahedron, Cube, Tetrahedron, Octahedron } from './js_3d_engine/js/mesh/platonicSolids.js';
+import { Teapot2 } from './js_3d_engine/js/mesh/miscSolid.js';
 
 let octahedron = new Octahedron();
 let icosahedron = new Icosahedron();
