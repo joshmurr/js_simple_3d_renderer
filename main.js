@@ -1,34 +1,21 @@
-import * as Utils from './js/math/utils.js';
+import { randomVecRGB } from './js/math/utils.js';
 import GUI from './js/gui/gui.js';
 import Vec3 from './js/math/vec3.js';
-import Vec4 from './js/math/vec4.js';
-import Mat33 from './js/math/mat33.js';
-import Mat44 from './js/math/mat44.js';
+
 import Renderer from './js/render/renderer.js';
 import Scene from './js/scene/scene.js';
-import Octahedon from './js/mesh/octahedron.js';
-import Icosahedron from './js/mesh/icosahedron.js';
-import Teapot from './js/mesh/teapot.js';
-import Teapot2 from './js/mesh/teapot2.js';
-import Tetrahedron from './js/mesh/tetrahedron.js';
-import Cube from './js/mesh/cube.js';
-import Torus from './js/mesh/torus.js';
-import Klein from './js/mesh/klein.js';
-import MobiusTube from './js/mesh/mobiusTube.js';
-import SineSurface from './js/mesh/sineSurface.js';
-import EightSurface from './js/mesh/eightSurface.js';
-import HyperbolicOctahedron from './js/mesh/hyperbolicOctahedron.js';
-import CrossCap from './js/mesh/crossCap.js';
-import BohemianDome from './js/mesh/bohemianDome.js';
 
-let octahedron = new Octahedon();
+import { Torus, KleinBottle, MobiusTube, SineSurface, EightSurface, HyperbolicOctahedron, CrossCap, BohemianDome } from './js/mesh/parametricSolid.js';
+import { Icosahedron, Cube, Tetrahedron, Octahedron } from './js/mesh/platonicSolids.js';
+import { Teapot2 } from './js/mesh/miscSolid.js';
+
+let octahedron = new Octahedron();
 let icosahedron = new Icosahedron();
 let tetrahedron = new Tetrahedron();
 let cube = new Cube();
-let teapot = new Teapot();
 let teapot2 = new Teapot2();
 let torus = new Torus(16, 16, 0, Math.PI*2, 0, Math.PI*2, 2, 1);
-let klein = new Klein(16, 32, 0, Math.PI*2, 0, Math.PI*2);
+let klein = new KleinBottle(16, 32, 0, Math.PI*2, 0, Math.PI*2);
 let mobiusTube = new MobiusTube(32, 32, 0, Math.PI*2, 0, Math.PI*2, 1, 2);
 let sineSurface = new SineSurface(32, 32, 0, Math.PI*2, 0, Math.PI*2, 1);
 let eightSurface = new EightSurface(32, 32, 0, Math.PI*2, -Math.PI/2, Math.PI/2);
@@ -112,37 +99,37 @@ let renderer = new Renderer(scene);
 renderer.setup();
 
 octahedron.computeFaceNormals();
-octahedron.colour = Utils.randomVecRGB();
+octahedron.colour = randomVecRGB();
 
 klein.computeFaceNormals();
-klein.colour = Utils.randomVecRGB();
+klein.colour = randomVecRGB();
 
 icosahedron.computeFaceNormals();
-icosahedron.colour = Utils.randomVecRGB();
+icosahedron.colour = randomVecRGB();
 
 tetrahedron.computeFaceNormals();
-tetrahedron.colour = Utils.randomVecRGB();
+tetrahedron.colour = randomVecRGB();
 
 cube.computeFaceNormals();
-cube.colour = Utils.randomVecRGB();
+cube.colour = randomVecRGB();
 
 torus.computeFaceNormals();
-torus.colour = Utils.randomVecRGB();
+torus.colour = randomVecRGB();
 
 mobiusTube.computeFaceNormals();
-mobiusTube.colour = Utils.randomVecRGB();
+mobiusTube.colour = randomVecRGB();
 
 sineSurface.computeFaceNormals();
-sineSurface.colour = Utils.randomVecRGB();
+sineSurface.colour = randomVecRGB();
 
 hyperbolicOctahedron.computeFaceNormals();
-hyperbolicOctahedron.colour = Utils.randomVecRGB();
+hyperbolicOctahedron.colour = randomVecRGB();
 
 crossCap.computeFaceNormals();
-crossCap.colour = Utils.randomVecRGB();
+crossCap.colour = randomVecRGB();
 
 teapot2.computeFaceNormals();
-teapot2.colour = Utils.randomVecRGB();
+teapot2.colour = randomVecRGB();
 
 function draw(){
     renderer.render();

@@ -1,6 +1,6 @@
 import ParametricMesh from './parametricMesh.js';
 
-export default class Klein extends ParametricMesh {
+export class KleinBottle extends ParametricMesh {
     constructor(_slices, _segments, _uMin, _uMax, _vMin, _vMax){
         super(_slices, _segments, _uMin, _uMax, _vMin, _vMax);
     }

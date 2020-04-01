@@ -1,7 +1,7 @@
 import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-export default class Cube extends Mesh{
+export class Cube extends Mesh{
     constructor(){
         super();
         this.faces = [

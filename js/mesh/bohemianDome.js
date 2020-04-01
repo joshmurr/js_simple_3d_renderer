@@ -1,6 +1,6 @@
 import ParametricMesh from './parametricMesh.js';
 
-export default class BohemianDome extends ParametricMesh {
+export class BohemianDome extends ParametricMesh {
     constructor(_slices, _segments, _uMin, _uMax, _vMin, _vMax, _a, _b, _c){
         super(_slices, _segments, _uMin, _uMax, _vMin, _vMax);
         this._a = _a;

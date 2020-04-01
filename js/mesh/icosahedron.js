@@ -1,7 +1,7 @@
 import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-export default class Icosahedron extends Mesh{
+export class Icosahedron extends Mesh{
     constructor(){
         super();
         this.faces = [

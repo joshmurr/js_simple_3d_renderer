@@ -1,7 +1,7 @@
 import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-export default class Teapot2 extends Mesh{
+export class Teapot2 extends Mesh{
     constructor(){
         super();
 

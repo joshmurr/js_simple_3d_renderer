@@ -1,6 +1,6 @@
 import ParametricMesh from './parametricMesh.js';
 
-export default class Torus extends ParametricMesh {
+export class Torus extends ParametricMesh {
     constructor(_slices, _segments, _uMin, _uMax, _vMin, _vMax, _c, _a){
         // c - Radius from centre of hole to centre of torus
         // a - Radius of tube

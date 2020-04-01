@@ -1,6 +1,6 @@
 import ParametricMesh from './parametricMesh.js';
 
-export default class MobiusTube extends ParametricMesh {
+export class MobiusTube extends ParametricMesh {
     constructor(_slices, _segments, _uMin, _uMax, _vMin, _vMax, _R, _n){
         // c - Radius from centre of hole to centre of torus
         // a - Radius of tube

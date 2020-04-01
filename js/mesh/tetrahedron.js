@@ -1,7 +1,7 @@
 import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-export default class Tetrahedron extends Mesh{
+export class Tetrahedron extends Mesh{
     constructor(){
         super();
         this.faces = [

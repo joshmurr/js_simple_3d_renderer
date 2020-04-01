@@ -1,7 +1,7 @@
 import Vec4 from '../math/vec4.js';
 import Mesh from './mesh.js';
 
-export default class Octahedron extends Mesh{
+export class Octahedron extends Mesh{
     constructor(){
         super();
         let f = Math.SQRT2 / 2;
