@@ -6,22 +6,22 @@ import GUI from './js_3d_engine/js/gui/gui.js';
 import Renderer from './js_3d_engine/js/render/renderer.js';
 import Scene from './js_3d_engine/js/scene/scene.js';
 
-import { Torus, KleinBottle, MobiusTube, SineSurface, EightSurface, HyperbolicOctahedron, CrossCap, BohemianDome } from './js_3d_engine/js/mesh/parametricSolid.js';
+import { Torus, KleinBottle, MobiusTube } from './js_3d_engine/js/mesh/parametricSolid.js';
 import { Icosahedron, Cube, Tetrahedron, Octahedron } from './js_3d_engine/js/mesh/platonicSolids.js';
-import { Teapot2 } from './js_3d_engine/js/mesh/miscSolid.js';
+// import { Teapot2 } from './js_3d_engine/js/mesh/miscSolid.js';
 
 let octahedron = new Octahedron();
 let icosahedron = new Icosahedron();
 let tetrahedron = new Tetrahedron();
 let cube = new Cube();
-let teapot2 = new Teapot2();
+// let teapot2 = new Teapot2();
 let torus = new Torus(16, 16, 0, Math.PI*2, 0, Math.PI*2, 2, 1);
 let klein = new KleinBottle(16, 32, 0, Math.PI*2, 0, Math.PI*2);
-let mobiusTube = new MobiusTube(32, 32, 0, Math.PI*2, 0, Math.PI*2, 1, 2);
-let sineSurface = new SineSurface(32, 32, 0, Math.PI*2, 0, Math.PI*2, 1);
-let eightSurface = new EightSurface(32, 32, 0, Math.PI*2, -Math.PI/2, Math.PI/2);
-let hyperbolicOctahedron = new HyperbolicOctahedron(32, 32, -Math.PI/2, Math.PI/2, -Math.PI, Math.PI);
-let crossCap = new CrossCap(16, 16, 0, Math.PI*2, 0, Math.PI/2);
+let mobiusTube = new MobiusTube(16, 16, 0, Math.PI*2, 0, Math.PI*2, 1, 2);
+// let sineSurface = new SineSurface(32, 32, 0, Math.PI*2, 0, Math.PI*2, 1);
+// let eightSurface = new EightSurface(32, 32, 0, Math.PI*2, -Math.PI/2, Math.PI/2);
+// let hyperbolicOctahedron = new HyperbolicOctahedron(32, 32, -Math.PI/2, Math.PI/2, -Math.PI, Math.PI);
+// let crossCap = new CrossCap(16, 16, 0, Math.PI*2, 0, Math.PI/2);
 
 // createVerts & createFaces need to be called here so that the constructors in the child classes
 // can take their extra parameters if they have them.
@@ -35,19 +35,19 @@ klein.createFaces();
 mobiusTube.createVerts();
 mobiusTube.createFaces();
 
-sineSurface.createVerts();
-sineSurface.createFaces();
+// sineSurface.createVerts();
+// sineSurface.createFaces();
 
-eightSurface.createVerts();
-eightSurface.createFaces();
+// eightSurface.createVerts();
+// eightSurface.createFaces();
+//
+// hyperbolicOctahedron.createVerts();
+// hyperbolicOctahedron.createFaces();
 
-hyperbolicOctahedron.createVerts();
-hyperbolicOctahedron.createFaces();
+// crossCap.createVerts();
+// crossCap.createFaces();
 
-crossCap.createVerts();
-crossCap.createFaces();
-
-teapot2.createFaces(); // This is a special case to re-format the indices taken from a .OBJ file
+// teapot2.createFaces(); // This is a special case to re-format the indices taken from a .OBJ file
 
 let meshes = {
     "Icosahedron": icosahedron,
@@ -55,19 +55,18 @@ let meshes = {
     "Tetrahedron": tetrahedron,
     "Cube": cube,
     "Torus": torus,
-    "Sine Surface": sineSurface,
-    "Cross Cap": crossCap,
+    // "Sine Surface": sineSurface,
+    // "Cross Cap": crossCap,
     "Mobius Tube": mobiusTube,
-    "Hyperbolic Octahedron": hyperbolicOctahedron,
-    "Eight Surface": eightSurface,
+    // "Hyperbolic Octahedron": hyperbolicOctahedron,
+    // "Eight Surface": eightSurface,
     "Klein": klein,
-    "Teapot": teapot2,
+    // "Teapot": teapot2,
 };
 
 let gui = new GUI();
 gui.menu();
 gui.title("3D Engine");
-gui.title("Model");
 gui.title("Drawing Style");
 gui.button("colour", "Colour", 0);
 gui.button("normals", "Face Normals", 0);
@@ -123,11 +122,11 @@ mobiusTube.colour = randomVecRGB();
 sineSurface.computeFaceNormals();
 sineSurface.colour = randomVecRGB();
 
-hyperbolicOctahedron.computeFaceNormals();
-hyperbolicOctahedron.colour = randomVecRGB();
+// hyperbolicOctahedron.computeFaceNormals();
+// hyperbolicOctahedron.colour = randomVecRGB();
 
-crossCap.computeFaceNormals();
-crossCap.colour = randomVecRGB();
+// crossCap.computeFaceNormals();
+// crossCap.colour = randomVecRGB();
 
 teapot2.computeFaceNormals();
 teapot2.colour = randomVecRGB();
